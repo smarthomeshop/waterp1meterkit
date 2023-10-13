@@ -8,7 +8,11 @@ substitutions:
 esphome:
   name: ${device_name}
   friendly_name: ${friendly_name}
-  
+  device_description: "The WaterP1MeterKit is an all-in-one solution for monitoring both water and energy consumption in your home through Home Assistant."
+  project:
+    name: "smarthomeshop.waterp1meterkit"
+    version: ${waterp1meterkit_software_version}
+
 esp32:
   board: esp32dev
   framework:
