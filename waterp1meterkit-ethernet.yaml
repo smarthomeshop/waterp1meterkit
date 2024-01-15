@@ -1,9 +1,10 @@
+---
 #Name of device
 substitutions:
   device_name: waterp1meterkit
   friendly_name: WaterP1MeterKit
   waterp1meterkit_software_version: "2023.10"
-  
+
 #Esphome start
 esphome:
   name: ${device_name}
@@ -11,7 +12,7 @@ esphome:
   project:
     name: "smarthomeshop.waterp1meterkit"
     version: ${waterp1meterkit_software_version}
-  
+
 esp32:
   board: esp32dev
   framework:
@@ -20,7 +21,7 @@ esp32:
 # Enable logging
 logger:
   baud_rate: 115200
-  
+
 # Enable Home Assistant API
 api:
 
@@ -37,21 +38,16 @@ ethernet:
   clk_mode: GPIO17_OUT
   phy_addr: 1
   power_pin: GPIO16
-       
+
 web_server:
   port: 80
-
-
-# Status LED of ESP
-status_led:
-  pin: GPIO05
 
 # Switch to restart the waterp1meter
 switch:
   - platform: restart
     id: switch_restart
     name: "${friendly_name} Restart"
-    
+
 # I²C Bus
 #
 # This component sets up the I²C bus for the ESP8266.
@@ -80,7 +76,7 @@ light:
   - platform: monochromatic
     id: light_led_green
     output: output_led_green
-  - platform: monochromatic
+  - platform: status_led
     id: light_led_red
     output: output_led_red
   - platform: monochromatic
@@ -101,7 +97,7 @@ dsmr:
   request_pin: GPIO12
   #request_interval: 10s
 #DSMR part end
- 
+
 sensor:
   #DSMR part
   - platform: dsmr
@@ -175,17 +171,17 @@ sensor:
       id: dsmr_extra_device_delivered
       name: "Gas Consumed"
       state_class: total_increasing
-    
+
     # Belgium
     # gas_delivered_be:
     #   name: ${friendly_name} Gas Delivered BE
-    
+
     # Luxembourg
     # energy_delivered_lux:
     #   name: ${friendly_name} Energy Delivered Lux
     # energy_returned_lux:
     #   name: ${friendly_name} Energy Returned Lux
-    
+
   #WaterMeter sensor part
   - platform: pulse_meter
     id: sensor_pulse_meter
@@ -225,12 +221,12 @@ sensor:
       filters:
         offset: 12
     update_interval: 60s
-    
+
 text_sensor:
   - platform: ethernet_info
     ip_address:
       name: "${friendly_name} IP address"
-      icon: "mdi:network-outline"  
+      icon: "mdi:network-outline"
   - platform: version
     id: text_sensor_version
     name: "${friendly_name} ESPHome Version"
