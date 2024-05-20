@@ -6,7 +6,7 @@ The WaterP1MeterKit is an all-in-one solution for monitoring both water and ener
 
 Check our website to view if your watermeter and energymeter is compatible: https://waterp1meterkit.nl/en
 
-**Important Notice:** The WaterP1MeterKit supports both Wi-Fi and Ethernet connectivity. Out of the box, it comes with Wi-Fi support. If you want to use the Ethernet port (with optional PoE), you'll need to reflash the device with the Ethernet version firmware the YAML-code and .bin file can be found in this repository.
+**Important Notice:** The WaterP1MeterKit supports both Wi-Fi and Ethernet connectivity. Out of the box, it comes with Wi-Fi support. If you want to use the Ethernet port (with optional PoE), you'll need to reflash the device with the Ethernet version firmware the YAML-code and .bin file can be found in this repository. Please make sure you have version V1 or V2 of the kit.
 
 ## Features
 
@@ -20,7 +20,7 @@ Check our website to view if your watermeter and energymeter is compatible: http
 
 - **Dual Connectivity:** The WaterP1MeterKit supports both Wi-Fi and Ethernet connectivity. Out of the box, it comes with Wi-Fi support, but you can choose to reflash it with the Ethernet version for a more stable wired connection.
 
-- **Power over Ethernet (PoE) Support:** With Ethernet connectivity, you have the option to use a PoE splitter to power the kit via PoE, eliminating the need for additional power cables. Check out our website for more information.
+- **Power over Ethernet (PoE) Support:** V2 has build-in PoE support. For V1, you have the option to use a PoE splitter to power the kit via PoE, eliminating the need for additional power cables. Check out our website for more information.s
 
 - **Integration with Home Assistant:** Seamlessly integrate the kit with Home Assistant using the provided blueprints.
 
@@ -29,7 +29,7 @@ Check our website to view if your watermeter and energymeter is compatible: http
 - Water P1 Meter Kit
 - Energy meter cable (P1 meter)
 - All necessary cables and watermeter sensor
-- Installation guide
+- Quick Start Guide
 
 ## Installation
 
