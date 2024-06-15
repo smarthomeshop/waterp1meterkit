@@ -2,7 +2,7 @@
 substitutions:
   device_name: waterp1meterkit
   friendly_name: WaterP1MeterKit
-  waterp1meterkit_software_version: "2024.05"
+  waterp1meterkit_software_version: "1.0"
   waterp1meterkit_hardware_version: "V2"
 
 #Esphome start
@@ -29,15 +29,19 @@ api:
 ota:
 
 dashboard_import:
-  package_import_url: github://smarthomeshop/waterp1meterkit/waterp1meterkit-v2-ethernet.yaml@main
+  package_import_url: github://smarthomeshop/waterp1meterkit/waterp1meterkit-v2/waterp1meterkit-wifi.yaml@main
     
-ethernet:
-  type: LAN8720
-  mdc_pin: GPIO23
-  mdio_pin: GPIO18
-  clk_mode: GPIO17_OUT
-  phy_addr: 1
-  power_pin: GPIO33
+wifi:
+  # remove leading '#' and fill in your wifi details
+  # ssid: !secret wifi_ssid
+  # password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: ${device_name}
+    password: ${device_name}
+
+captive_portal:
 
 web_server:
   port: 80
@@ -101,6 +105,12 @@ dsmr:
 #DSMR part end
 
 sensor:
+  #Wifi signal
+  - platform: wifi_signal
+    name: "${friendly_name} WiFi Signal"
+    update_interval: 300s
+    id: sensor_wifi_signal
+
   #DSMR part
   - platform: dsmr
     energy_delivered_tariff1:
@@ -226,21 +236,30 @@ sensor:
     update_interval: 60s
 
 text_sensor:
+  # WiFi info #
+  - platform: wifi_info
+    ip_address:
+      name: "${friendly_name} IP address"
+      icon: "mdi:network-outline"
+    ssid:
+      name: "${friendly_name} Connected SSID"
+    bssid:
+      name: "${friendly_name} Connected BSSID"
   - platform: version
     id: text_sensor_version
     name: "ESPHome Version"
   - platform: template
-    id: text_sensor_waterp1meterkit_version
+    id: text_sensor_waterp1meterkit_software_version
     name: "Software Version"
     update_interval: 5h
     lambda: |-
       return {"${waterp1meterkit_software_version}"};
   - platform: template
     id: text_sensor_waterp1meterkit_hardware_version
-    name: "${friendly_name} Hardware Version"
+    name: "Hardware Version"
     update_interval: 5h
     lambda: |-
-      return {"${p1meterkit_hardware_version}"};
+      return {"${waterp1meterkit_hardware_version}"};
   - platform: dsmr
     identification:
       name: Identification
