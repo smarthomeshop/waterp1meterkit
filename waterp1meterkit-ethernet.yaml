@@ -27,6 +27,7 @@ api:
 
 #Enable Over the Air updates
 ota:
+  - platform: esphome
 
 dashboard_import:
   package_import_url: github://smarthomeshop/waterp1meterkit/waterp1meterkit-ethernet.yaml@main
