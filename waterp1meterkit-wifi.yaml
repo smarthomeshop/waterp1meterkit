@@ -3,7 +3,7 @@
 substitutions:
   device_name: waterp1meterkit
   friendly_name: WaterP1MeterKit
-  waterp1meterkit_software_version: "V1.1"
+  waterp1meterkit_software_version: "1.1"
 
 #Esphome start
 esphome:
