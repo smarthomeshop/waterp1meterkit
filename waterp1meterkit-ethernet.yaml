@@ -3,7 +3,7 @@
 substitutions:
   device_name: waterp1meterkit
   friendly_name: WaterP1MeterKit
-  waterp1meterkit_software_version: "2023.10"
+  waterp1meterkit_software_version: "V1.1"
 
 #Esphome start
 esphome:
@@ -22,8 +22,9 @@ esp32:
 logger:
   baud_rate: 115200
 
-# Enable Home Assistant API
-api:
+#Enable Over the Air updates
+ota:
+  - platform: esphome
 
 #Enable Over the Air updates
 ota:

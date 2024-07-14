@@ -3,7 +3,7 @@
 substitutions:
   device_name: waterp1meterkit
   friendly_name: WaterP1MeterKit
-  waterp1meterkit_software_version: "2023.10"
+  waterp1meterkit_software_version: "V1.1"
 
 #Esphome start
 esphome:
@@ -27,6 +27,7 @@ api:
 
 #Enable Over the Air updates
 ota:
+  - platform: esphome
 
 dashboard_import:
   package_import_url: github://smarthomeshop/waterp1meterkit/waterp1meterkit-wifi.yaml@main
