@@ -220,42 +220,36 @@ sensor:
       accuracy_decimals: 3
       filters:
         - lambda: |-
-            // Optellen van de pulsen bij de initiële waarde (m³)
-            return id(totalwater) + (x * 0.001);  // x is het aantal liters dat wordt omgezet naar m³
+            return id(totalwater) + (x * 0.001);  
     on_value:
       then:
         - light.turn_on:
             id: light_led_green
             flash_length: 1s 
-  # Sensor voor het verbruik in liters (L)
   - platform: template
-    name: "Waterverbruik in Liters"
+    name: "Water Usage in Liters"
     id: water_usage_liters
     unit_of_measurement: "L"
     icon: "mdi:water-pump"
-    accuracy_decimals: 0  # Verbruik in hele liters
+    accuracy_decimals: 0  
     lambda: |-
-      return id(sensor_pulse_meter);  # Geeft het aantal liters water per minuut terug
-
-  # Sensor voor het verbruik in kubieke meters (m³)
+      return id(sensor_pulse_meter);  
   - platform: template
-    name: "Waterverbruik in M³"
+    name: "Water Usage in M³"
     id: water_usage_m3
     unit_of_measurement: "m³"
     icon: "mdi:water"
-    accuracy_decimals: 3  # Verbruik in m³, met drie decimalen
+    accuracy_decimals: 3  
     lambda: |-
-      return id(sensor_pulse_meter) * 0.001;  # Zet liters om naar kubieke meters
-
-  # Sensor voor de totale meterstand in kubieke meters (m³)
+      return id(sensor_pulse_meter) * 0.001;  
   - platform: template
-    name: "Totale Watermeterstand"
+    name: "Total Water Meter REading"
     id: total_water_m3
     unit_of_measurement: "m³"
     icon: "mdi:counter"
     accuracy_decimals: 3
     lambda: |-
-      return id(totalwater);  # Geeft de totale meterstand in kubieke meters weer
+      return id(totalwater);  
       
   #HDC1080 temp & hum sensor
   - platform: hdc1080
