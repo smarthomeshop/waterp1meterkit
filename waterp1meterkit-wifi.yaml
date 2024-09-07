@@ -4,7 +4,13 @@ substitutions:
   device_name: waterp1meterkit
   friendly_name: WaterP1MeterKit
   waterp1meterkit_software_version: "1.1"
-
+  
+globals:
+  - id: totalwater
+    type: float
+    restore_value: yes  # Zorgt ervoor dat de waarde behouden blijft na een herstart
+    initial_value: '00012.345'  # Beginwaarde van de watermeterstand in m³
+    
 #Esphome start
 esphome:
   name: ${device_name}
@@ -196,29 +202,61 @@ sensor:
   #WaterMeter sensor part
   - platform: pulse_meter
     id: sensor_pulse_meter
-    name: "${friendly_name} Current Usage"
+    name: "Water Current Usage"
     icon: "mdi:water-pump"
     unit_of_measurement: "L/min"
+    pin: GPIO32  # Verbindt de sensor met GPIO32
     internal_filter_mode: PULSE
-    internal_filter: 200ms
-    timeout: 2min
+    internal_filter: 200ms  
+    timeout: 2min  
     accuracy_decimals: 1
     total:
       id: sensor_pulse_meter_total
-      name: "${friendly_name} Total Consumption"
+      name: "Water Total Consumption"
       icon: "mdi:cube-outline"
       unit_of_measurement: "m³"
       state_class: total_increasing
       device_class: water
       accuracy_decimals: 3
       filters:
-        - multiply: 0.001
-    pin: GPIO32
+        - lambda: |-
+            // Optellen van de pulsen bij de initiële waarde (m³)
+            return id(totalwater) + (x * 0.001);  // x is het aantal liters dat wordt omgezet naar m³
     on_value:
       then:
         - light.turn_on:
             id: light_led_green
-            flash_length: 1s
+            flash_length: 1s 
+  # Sensor voor het verbruik in liters (L)
+  - platform: template
+    name: "Waterverbruik in Liters"
+    id: water_usage_liters
+    unit_of_measurement: "L"
+    icon: "mdi:water-pump"
+    accuracy_decimals: 0  # Verbruik in hele liters
+    lambda: |-
+      return id(sensor_pulse_meter);  # Geeft het aantal liters water per minuut terug
+
+  # Sensor voor het verbruik in kubieke meters (m³)
+  - platform: template
+    name: "Waterverbruik in M³"
+    id: water_usage_m3
+    unit_of_measurement: "m³"
+    icon: "mdi:water"
+    accuracy_decimals: 3  # Verbruik in m³, met drie decimalen
+    lambda: |-
+      return id(sensor_pulse_meter) * 0.001;  # Zet liters om naar kubieke meters
+
+  # Sensor voor de totale meterstand in kubieke meters (m³)
+  - platform: template
+    name: "Totale Watermeterstand"
+    id: total_water_m3
+    unit_of_measurement: "m³"
+    icon: "mdi:counter"
+    accuracy_decimals: 3
+    lambda: |-
+      return id(totalwater);  # Geeft de totale meterstand in kubieke meters weer
+      
   #HDC1080 temp & hum sensor
   - platform: hdc1080
     temperature:
