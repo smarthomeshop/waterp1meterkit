@@ -1,6 +1,6 @@
 # WaterP1MeterKit for Home Assistant  
 
-![WaterP1MeterKit Logo](images/waterp1meterkit-logo.png)  
+![WaterP1MeterKit Logo](./images/waterp1meterkit-logo.png)  
 
 The WaterP1MeterKit is an all-in-one solution for monitoring both water and energy consumption in your home through Home Assistant. This comprehensive kit offers real-time insights into your water and electricity usage and enables you to track trends over time. It's the ideal choice for those looking to make informed decisions about resource management in their household.  
 
