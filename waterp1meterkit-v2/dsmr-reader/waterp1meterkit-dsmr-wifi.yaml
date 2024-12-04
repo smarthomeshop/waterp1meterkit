@@ -30,7 +30,7 @@ ota:
   - platform: esphome
 
 dashboard_import:
-  package_import_url: github://smarthomeshop/waterp1meterkit/waterp1meterkit-v2/waterp1meterkit-wifi.yaml@main
+  package_import_url: github://smarthomeshop/waterp1meterkit/waterp1meterkit-v2/dsmr-reader/waterp1meterkit-wifi.yaml@main
     
 wifi:
   # remove leading '#' and fill in your wifi details
