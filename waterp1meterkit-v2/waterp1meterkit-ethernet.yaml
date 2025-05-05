@@ -43,10 +43,10 @@ ethernet:
 web_server:
   port: 80
 
-# Switch to restart the waterp1meter
-switch:
+# Button to restart the waterp1meter
+button:
   - platform: restart
-    id: switch_restart
+    id: button_restart
     name: "${friendly_name} Restart"
 
 # I²C Bus
