@@ -1,0 +1,270 @@
+#Name of device
+substitutions:
+  device_name: waterp1meterkit
+  friendly_name: WaterP1MeterKit
+  waterp1meterkit_software_version: "1.1"
+  waterp1meterkit_hardware_version: "V3"
+
+#Esphome start
+esphome:
+  name: ${device_name}
+  friendly_name: ${friendly_name}
+  project:
+    name: "smarthomeshop.waterp1meterkit"
+    version: ${waterp1meterkit_software_version}
+
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+
+# Enable logging
+logger:
+  baud_rate: 115200
+
+# Enable Home Assistant API
+api:
+
+#Enable Over the Air updates
+ota:
+  - platform: esphome
+
+dashboard_import:
+  package_import_url: github://smarthomeshop/waterp1meterkit/waterp1meterkit-v3/waterp1meterkit-ethernet.yaml@main
+    
+ethernet:
+  type: LAN8720
+  mdc_pin: GPIO23
+  mdio_pin: GPIO18
+  clk_mode: GPIO17_OUT
+  phy_addr: 1
+  power_pin: GPIO33
+
+web_server:
+  port: 80
+
+# Switch to restart the waterp1meter
+switch:
+  - platform: restart
+    id: switch_restart
+    name: "${friendly_name} Restart"
+
+binary_sensor:
+  - platform: gpio
+    name: "Water Leak Sensor"
+    pin:
+      number: GPIO2
+      mode:
+        input: true
+        pullup: true       
+      inverted: true
+    device_class: moisture
+    filters:
+      - delayed_on: 100ms
+      - delayed_off: 2s
+
+# I²C Bus
+#
+# This component sets up the I²C bus for the ESP8266.
+#
+# https://esphome.io/components/i2c.html
+#
+i2c:
+  sda: GPIO15
+  scl: GPIO4
+  scan: true
+  frequency: 400kHz
+
+#LED for measure status
+output:
+  - platform: ledc
+    pin: GPIO13
+    id: output_led_green
+  - platform: ledc
+    pin: GPIO05
+    id: output_led_red
+  - platform: ledc
+    pin: GPIO14
+    id: output_led_blue
+
+light:
+  - platform: monochromatic
+    id: light_led_green
+    output: output_led_green
+  - platform: status_led
+    id: light_led_red
+    output: output_led_red
+  - platform: monochromatic
+    id: light_led_blue
+    output: output_led_blue
+
+#DSMR part
+uart:
+  id: uart_dsmr
+  rx_pin:
+    number: GPIO16
+    inverted: true
+  baud_rate: 115200
+  rx_buffer_size: 1700
+
+dsmr:
+  uart_id: uart_dsmr
+  id: dsmr_instance
+  max_telegram_length: 1700
+  request_pin: GPIO12
+  gas_mbus_id: 1
+#DSMR part end
+
+sensor:
+  #DSMR part
+  - platform: dsmr
+    energy_delivered_tariff1:
+      id: dsmr_electricity_delivered_1
+      name: "Energy Consumed Tariff 1"
+      state_class: total_increasing
+    energy_returned_tariff1:
+      id: dsmr_electricity_returned_1
+      name: "Energy Produced Tariff 1"
+      state_class: total_increasing
+    energy_delivered_tariff2:
+      id: dsmr_electricity_delivered_2
+      name: "Energy Consumed Tariff 2"
+      state_class: total_increasing
+    energy_returned_tariff2:
+      id: dsmr_electricity_returned_2
+      name: "Energy Produced Tariff 2"
+      state_class: total_increasing
+    power_delivered:
+      accuracy_decimals: 3
+      id: dsmr_electricity_currently_delivered
+      name: "Power Consumed"
+    power_returned:
+      accuracy_decimals: 3
+      id: dsmr_electricity_currently_returned
+      name: "Power Produced"
+    voltage_l1:
+      id: dsmr_phase_voltage_l1
+      name: "Voltage Phase 1"
+    voltage_l2:
+      id: dsmr_phase_voltage_l2
+      name: "Voltage Phase 2"
+    voltage_l3:
+      id: dsmr_phase_voltage_l3
+      name: "Voltage Phase 3"
+    current_l1:
+      id: dsmr_phase_power_current_l1
+      name: "Current Phase 1"
+    current_l2:
+      id: dsmr_phase_power_current_l2
+      name: "Current Phase 2"
+    current_l3:
+      id: dsmr_phase_power_current_l3
+      name: "Current Phase 3"
+    power_delivered_l1:
+      accuracy_decimals: 3
+      id: dsmr_phase_currently_delivered_l1
+      name: "Power Consumed Phase 1"
+    power_delivered_l2:
+      accuracy_decimals: 3
+      id: dsmr_phase_currently_delivered_l2
+      name: "Power Consumed Phase 2"
+    power_delivered_l3:
+      accuracy_decimals: 3
+      id: dsmr_phase_currently_delivered_l3
+      name: "Power Consumed Phase 3"
+    power_returned_l1:
+      accuracy_decimals: 3
+      id: dsmr_phase_currently_returned_l1
+      name: "Power Produced Phase 1"
+    power_returned_l2:
+      accuracy_decimals: 3
+      id: dsmr_phase_currently_returned_l2
+      name: "Power Produced Phase 2"
+    power_returned_l3:
+      accuracy_decimals: 3
+      id: dsmr_phase_currently_returned_l3
+      name: "Power Produced Phase 3"
+    gas_delivered:
+      id: dsmr_extra_device_delivered
+      name: "Gas Consumed"
+      state_class: total_increasing
+
+    # Belgium
+    # gas_delivered_be:
+    #   name: "Gas Delivered BE"
+
+    # Luxembourg
+    # energy_delivered_lux:
+    #   name: "Energy Delivered Lux"
+    # energy_returned_lux:
+    #   name: "Energy Returned Lux"
+
+  #WaterMeter sensor part
+  - platform: pulse_meter
+    id: sensor_pulse_meter
+    name: "Water Current Usage"
+    icon: "mdi:water-pump"
+    unit_of_measurement: "L/min"
+    internal_filter_mode: PULSE
+    internal_filter: 200ms
+    timeout: 2min
+    accuracy_decimals: 1
+    total:
+      id: sensor_pulse_meter_total
+      name: "Water Total Consumption"
+      icon: "mdi:cube-outline"
+      unit_of_measurement: "m³"
+      state_class: total_increasing
+      device_class: water
+      accuracy_decimals: 3
+      filters:
+        - multiply: 0.001
+    pin: GPIO32
+    on_value:
+      then:
+        - light.turn_on:
+            id: light_led_green
+            flash_length: 1s
+  
+  #HDC1080 temp & hum sensor
+  - platform: hdc1080
+    temperature:
+      id: sensor_temperature
+      name: "Temperature"
+      filters:
+        offset: -4.5
+    humidity:
+      id: sensor_humidity
+      name: "Humidity"
+      filters:
+        offset: 12
+    update_interval: 60s
+
+text_sensor:
+  - platform: version
+    id: text_sensor_version
+    name: "ESPHome Version"
+  - platform: template
+    id: text_sensor_waterp1meterkit_software_version
+    name: "Software Version"
+    update_interval: 5h
+    lambda: |-
+      return {"${waterp1meterkit_software_version}"};
+  - platform: template
+    id: text_sensor_waterp1meterkit_hardware_version
+    name: "Hardware Version"
+    update_interval: 5h
+    lambda: |-
+      return {"${waterp1meterkit_hardware_version}"};
+  - platform: dsmr
+    identification:
+      name: Identification
+    p1_version:
+      name: Version
+    timestamp:
+      id: dsmr_timestamp
+      internal: true
+    # Belgium
+    # p1_version_be:
+    #  name: ${friendly_name} Version BE
+
