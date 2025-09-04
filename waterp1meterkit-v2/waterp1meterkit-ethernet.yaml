@@ -36,17 +36,19 @@ ethernet:
   type: LAN8720
   mdc_pin: GPIO23
   mdio_pin: GPIO18
-  clk_mode: GPIO17_OUT
+  clk:
+    pin: GPIO17
+    mode: CLK_OUT
   phy_addr: 1
   power_pin: GPIO33
 
 web_server:
   port: 80
 
-# Switch to restart the waterp1meter
-switch:
+# Button to restart the waterp1meter
+button:
   - platform: restart
-    id: switch_restart
+    id: button_restart
     name: "${friendly_name} Restart"
 
 # I²C Bus
