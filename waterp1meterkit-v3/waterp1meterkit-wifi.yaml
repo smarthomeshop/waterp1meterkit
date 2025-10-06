@@ -13,6 +13,11 @@ esphome:
     name: "smarthomeshop.waterp1meterkit"
     version: ${waterp1meterkit_software_version}
 
+  on_boot:
+    priority: -10
+    then:
+      - component.update: sensor_pulse_meter_total
+
 esp32:
   board: esp32dev
   framework:
@@ -66,6 +71,24 @@ binary_sensor:
     filters:
       - delayed_on: 100ms
       - delayed_off: 2s
+
+number:
+  - platform: template
+    id: water_total_number
+    name: "Water Total (adjustable)"
+    icon: "mdi:cube-outline"
+    unit_of_measurement: "m³"
+    device_class: water
+    optimistic: true
+    restore_value: true
+    min_value: 0
+    max_value: 100000
+    step: 0.001
+    mode: box
+    entity_category: config
+    on_value:
+      then:
+        - component.update: sensor_pulse_meter_total
 
 # I²C Bus
 #
@@ -219,22 +242,27 @@ sensor:
     internal_filter: 200ms
     timeout: 2min
     accuracy_decimals: 1
-    total:
-      id: sensor_pulse_meter_total
-      name: "Water Total Consumption"
-      icon: "mdi:cube-outline"
-      unit_of_measurement: "m³"
-      state_class: total_increasing
-      device_class: water
-      accuracy_decimals: 3
-      filters:
-        - multiply: 0.001
     pin: GPIO32
     on_value:
       then:
+        - number.set:
+            id: water_total_number
+            value: !lambda "return id(water_total_number).state + 0.001;"
         - light.turn_on:
             id: light_led_green
-            flash_length: 1s
+            flash_length: 200ms
+
+  - platform: template
+    id: sensor_pulse_meter_total
+    name: "Water Total Consumption"
+    icon: "mdi:cube-outline"
+    unit_of_measurement: "m³"
+    device_class: water
+    state_class: total_increasing
+    accuracy_decimals: 3
+    update_interval: never
+    lambda: |-
+      return id(water_total_number).state;
   
   #HDC1080 temp & hum sensor
   - platform: hdc1080
@@ -283,6 +311,9 @@ text_sensor:
     timestamp:
       id: dsmr_timestamp
       internal: true
+    electricity_tariff:
+      id: dsmr_electricity_tariff
+      name: "Electricity Tariff"
     # Belgium
     # p1_version_be:
     #  name: ${friendly_name} Version BE
