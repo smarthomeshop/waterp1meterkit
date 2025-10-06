@@ -311,6 +311,9 @@ text_sensor:
     timestamp:
       id: dsmr_timestamp
       internal: true
+    electricity_tariff:
+      id: dsmr_electricity_tariff
+      name: "Electricity Tariff"
     # Belgium
     # p1_version_be:
     #  name: ${friendly_name} Version BE
