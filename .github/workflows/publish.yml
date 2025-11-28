@@ -9,6 +9,12 @@ on:
         required: false
         type: boolean
         default: false
+  # Scheduled build: rebuild all firmware monthly with latest ESPHome
+  # ESPHome releases new versions around the 15th of each month
+  # We build on the 20th to give ESPHome ~5 days for bugfix releases (e.g., 2025.11.1, 2025.11.2)
+  # This ensures we ship stable firmware instead of potentially buggy .0 releases
+  schedule:
+    - cron: '0 3 20 * *'  # Every 20th of the month at 03:00 UTC
   push:
     branches:
       - main
@@ -49,6 +55,15 @@ jobs:
           # For workflow_dispatch with force_all, build everything
           if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ inputs.force_all }}" == "true" ]]; then
             echo "Force building all versions"
+            echo "v1=true" >> $GITHUB_OUTPUT
+            echo "v2=true" >> $GITHUB_OUTPUT
+            echo "v3=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # For scheduled runs, build everything (to get latest ESPHome)
+          if [[ "${{ github.event_name }}" == "schedule" ]]; then
+            echo "Scheduled build - rebuilding all versions with latest ESPHome"
             echo "v1=true" >> $GITHUB_OUTPUT
             echo "v2=true" >> $GITHUB_OUTPUT
             echo "v3=true" >> $GITHUB_OUTPUT
@@ -102,6 +117,9 @@ jobs:
         run: |
           set -euo pipefail
 
+          # For scheduled builds, just use current versions (no increment)
+          IS_SCHEDULED="${{ github.event_name == 'schedule' }}"
+
           update_version() {
             local VERSION_FILE=$1
             local OUTPUT_NAME=$2
@@ -113,6 +131,13 @@ jobs:
 
             CURRENT_VERSION=$(grep "project_version:" "$VERSION_FILE" | head -1 | sed 's/.*: *"\([^"]*\)".*/\1/')
             echo "Current version for $VERSION_FILE: $CURRENT_VERSION"
+
+            # For scheduled builds, keep current version (just rebuild with latest ESPHome)
+            if [[ "$IS_SCHEDULED" == "true" ]]; then
+              echo "${OUTPUT_NAME}=${CURRENT_VERSION}" >> $GITHUB_OUTPUT
+              echo "Scheduled build - keeping version: $CURRENT_VERSION"
+              return
+            fi
 
             # For tags, use the tag version
             if [[ "${GITHUB_REF_TYPE}" == "tag" && "${GITHUB_REF_NAME}" =~ ^v[0-9]+(\.[0-9]+)*$ ]]; then
@@ -159,6 +184,7 @@ jobs:
           fi
 
       - name: Commit version updates
+        # Don't update versions on scheduled builds (just rebuild with latest ESPHome)
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         shell: bash
         run: |
