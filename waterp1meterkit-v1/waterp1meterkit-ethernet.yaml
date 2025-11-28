@@ -1,10 +1,10 @@
-# WaterP1MeterKit V2 Ethernet Configuration
+# WaterP1MeterKit V1 Ethernet Configuration
 
 packages:
   base: !include base.yaml
 
 dashboard_import:
-  package_import_url: github://smarthomeshop/waterp1meterkit/waterp1meterkit-v2/waterp1meterkit-ethernet.yaml@main
+  package_import_url: github://smarthomeshop/waterp1meterkit/waterp1meterkit-v1/waterp1meterkit-ethernet.yaml@main
 
 ethernet:
   type: LAN8720
@@ -12,7 +12,7 @@ ethernet:
   mdio_pin: GPIO18
   clk_mode: GPIO17_OUT
   phy_addr: 1
-  power_pin: GPIO33
+  power_pin: GPIO16
 
 text_sensor:
   - platform: ethernet_info

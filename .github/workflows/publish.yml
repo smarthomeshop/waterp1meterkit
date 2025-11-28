@@ -1,0 +1,298 @@
+name: Build and Publish WaterP1MeterKit firmware
+
+on:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      force_all:
+        description: 'Force build all versions'
+        required: false
+        type: boolean
+        default: false
+  push:
+    branches:
+      - main
+    paths:
+      - 'waterp1meterkit-v1/**'
+      - 'waterp1meterkit-v2/**'
+      - 'waterp1meterkit-v3/**'
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  # ============================================
+  # Detect which versions have changed
+  # ============================================
+  detect-changes:
+    name: Detect changed versions
+    runs-on: ubuntu-latest
+    outputs:
+      v1_changed: ${{ steps.changes.outputs.v1 }}
+      v2_changed: ${{ steps.changes.outputs.v2 }}
+      v3_changed: ${{ steps.changes.outputs.v3 }}
+      v1_version: ${{ steps.versions.outputs.v1_version }}
+      v2_version: ${{ steps.versions.outputs.v2_version }}
+      v3_version: ${{ steps.versions.outputs.v3_version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check for changes in each version
+        id: changes
+        shell: bash
+        run: |
+          # For workflow_dispatch with force_all, build everything
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ inputs.force_all }}" == "true" ]]; then
+            echo "Force building all versions"
+            echo "v1=true" >> $GITHUB_OUTPUT
+            echo "v2=true" >> $GITHUB_OUTPUT
+            echo "v3=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # For tags, build everything
+          if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
+            echo "Tag detected, building all versions"
+            echo "v1=true" >> $GITHUB_OUTPUT
+            echo "v2=true" >> $GITHUB_OUTPUT
+            echo "v3=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # For PRs and pushes, detect changes
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            BASE_SHA=${{ github.event.pull_request.base.sha }}
+            HEAD_SHA=${{ github.event.pull_request.head.sha }}
+          else
+            # For push events, compare with previous commit
+            BASE_SHA=${{ github.event.before }}
+            HEAD_SHA=${{ github.sha }}
+          fi
+
+          # Check if base SHA is valid (not all zeros for first push)
+          if [[ "$BASE_SHA" == "0000000000000000000000000000000000000000" ]]; then
+            echo "First push detected, building all versions"
+            echo "v1=true" >> $GITHUB_OUTPUT
+            echo "v2=true" >> $GITHUB_OUTPUT
+            echo "v3=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # Detect changes in each version folder
+          V1_CHANGED=$(git diff --name-only $BASE_SHA $HEAD_SHA | grep -q "^waterp1meterkit-v1/" && echo "true" || echo "false")
+          V2_CHANGED=$(git diff --name-only $BASE_SHA $HEAD_SHA | grep -q "^waterp1meterkit-v2/" && echo "true" || echo "false")
+          V3_CHANGED=$(git diff --name-only $BASE_SHA $HEAD_SHA | grep -q "^waterp1meterkit-v3/" && echo "true" || echo "false")
+
+          echo "v1=$V1_CHANGED" >> $GITHUB_OUTPUT
+          echo "v2=$V2_CHANGED" >> $GITHUB_OUTPUT
+          echo "v3=$V3_CHANGED" >> $GITHUB_OUTPUT
+
+          echo "V1 changed: $V1_CHANGED"
+          echo "V2 changed: $V2_CHANGED"
+          echo "V3 changed: $V3_CHANGED"
+
+      - name: Update version numbers for changed versions
+        id: versions
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          update_version() {
+            local VERSION_FILE=$1
+            local OUTPUT_NAME=$2
+
+            if [[ ! -f "$VERSION_FILE" ]]; then
+              echo "${OUTPUT_NAME}=1.0" >> $GITHUB_OUTPUT
+              return
+            fi
+
+            CURRENT_VERSION=$(grep "project_version:" "$VERSION_FILE" | head -1 | sed 's/.*: *"\([^"]*\)".*/\1/')
+            echo "Current version for $VERSION_FILE: $CURRENT_VERSION"
+
+            # For tags, use the tag version
+            if [[ "${GITHUB_REF_TYPE}" == "tag" && "${GITHUB_REF_NAME}" =~ ^v[0-9]+(\.[0-9]+)*$ ]]; then
+              NEW_VERSION="${GITHUB_REF_NAME#v}"
+            else
+              # Increment minor version
+              if [[ "$CURRENT_VERSION" =~ ^([0-9]+)\.([0-9]+)(.*)$ ]]; then
+                MAJOR="${BASH_REMATCH[1]}"
+                MINOR="${BASH_REMATCH[2]}"
+                SUFFIX="${BASH_REMATCH[3]}"
+                NEW_MINOR=$((MINOR + 1))
+                NEW_VERSION="${MAJOR}.${NEW_MINOR}${SUFFIX}"
+              else
+                SHORTSHA=$(echo "${GITHUB_SHA}" | cut -c1-7)
+                NEW_VERSION="dev-${SHORTSHA}"
+              fi
+            fi
+
+            echo "${OUTPUT_NAME}=${NEW_VERSION}" >> $GITHUB_OUTPUT
+            echo "New version for $VERSION_FILE: $NEW_VERSION"
+          }
+
+          # Get/update versions for each changed version
+          if [[ "${{ steps.changes.outputs.v1 }}" == "true" ]]; then
+            update_version "waterp1meterkit-v1/base.yaml" "v1_version"
+          else
+            # Just read current version without incrementing
+            V1_CURRENT=$(grep "project_version:" "waterp1meterkit-v1/base.yaml" 2>/dev/null | head -1 | sed 's/.*: *"\([^"]*\)".*/\1/' || echo "1.0")
+            echo "v1_version=$V1_CURRENT" >> $GITHUB_OUTPUT
+          fi
+
+          if [[ "${{ steps.changes.outputs.v2 }}" == "true" ]]; then
+            update_version "waterp1meterkit-v2/base.yaml" "v2_version"
+          else
+            V2_CURRENT=$(grep "project_version:" "waterp1meterkit-v2/base.yaml" 2>/dev/null | head -1 | sed 's/.*: *"\([^"]*\)".*/\1/' || echo "1.0")
+            echo "v2_version=$V2_CURRENT" >> $GITHUB_OUTPUT
+          fi
+
+          if [[ "${{ steps.changes.outputs.v3 }}" == "true" ]]; then
+            update_version "waterp1meterkit-v3/base.yaml" "v3_version"
+          else
+            V3_CURRENT=$(grep "project_version:" "waterp1meterkit-v3/base.yaml" 2>/dev/null | head -1 | sed 's/.*: *"\([^"]*\)".*/\1/' || echo "1.0")
+            echo "v3_version=$V3_CURRENT" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit version updates
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        shell: bash
+        run: |
+          CHANGES_MADE=false
+
+          # Update V1 if changed
+          if [[ "${{ steps.changes.outputs.v1 }}" == "true" ]]; then
+            sed -i "s/^\s*project_version: \".*\"/  project_version: \"${{ steps.versions.outputs.v1_version }}\"/" waterp1meterkit-v1/base.yaml
+            CHANGES_MADE=true
+          fi
+
+          # Update V2 if changed
+          if [[ "${{ steps.changes.outputs.v2 }}" == "true" ]]; then
+            sed -i "s/^\s*project_version: \".*\"/  project_version: \"${{ steps.versions.outputs.v2_version }}\"/" waterp1meterkit-v2/base.yaml
+            CHANGES_MADE=true
+          fi
+
+          # Update V3 if changed
+          if [[ "${{ steps.changes.outputs.v3 }}" == "true" ]]; then
+            sed -i "s/^\s*project_version: \".*\"/  project_version: \"${{ steps.versions.outputs.v3_version }}\"/" waterp1meterkit-v3/base.yaml
+            CHANGES_MADE=true
+          fi
+
+          if [[ "$CHANGES_MADE" == "true" ]] && ! git diff --quiet; then
+            git config --local user.email "action@github.com"
+            git config --local user.name "GitHub Action"
+            git add waterp1meterkit-v*/base.yaml
+            
+            # Build commit message showing which versions were updated
+            MSG="chore: update versions"
+            [[ "${{ steps.changes.outputs.v1 }}" == "true" ]] && MSG="$MSG V1=${{ steps.versions.outputs.v1_version }}"
+            [[ "${{ steps.changes.outputs.v2 }}" == "true" ]] && MSG="$MSG V2=${{ steps.versions.outputs.v2_version }}"
+            [[ "${{ steps.changes.outputs.v3 }}" == "true" ]] && MSG="$MSG V3=${{ steps.versions.outputs.v3_version }}"
+            MSG="$MSG [skip ci]"
+            
+            git commit -m "$MSG" || exit 0
+            git push || echo "Nothing to push"
+          fi
+
+  # ============================================
+  # WaterP1MeterKit V1 Variants
+  # ============================================
+  publish-v1-wifi:
+    name: Publish WaterP1MeterKit V1 WiFi
+    needs: [detect-changes]
+    if: needs.detect-changes.outputs.v1_changed == 'true'
+    uses: ./.github/workflows/esphome-build.yml
+    with:
+      files: waterp1meterkit-v1/waterp1meterkit-wifi.yaml
+      name: WaterP1MeterKit V1 WiFi
+      manifest_filename: waterp1meterkit-v1-wifi-manifest.json
+      clean: false
+      esphome_version: latest
+      directory_name: waterp1meterkit-v1-wifi
+      project_version: ${{ needs.detect-changes.outputs.v1_version }}
+      base_path: waterp1meterkit-v1
+
+  publish-v1-ethernet:
+    name: Publish WaterP1MeterKit V1 Ethernet
+    needs: [detect-changes]
+    if: needs.detect-changes.outputs.v1_changed == 'true'
+    uses: ./.github/workflows/esphome-build.yml
+    with:
+      files: waterp1meterkit-v1/waterp1meterkit-ethernet.yaml
+      name: WaterP1MeterKit V1 Ethernet
+      manifest_filename: waterp1meterkit-v1-ethernet-manifest.json
+      clean: false
+      esphome_version: latest
+      directory_name: waterp1meterkit-v1-ethernet
+      project_version: ${{ needs.detect-changes.outputs.v1_version }}
+      base_path: waterp1meterkit-v1
+
+  # ============================================
+  # WaterP1MeterKit V2 Variants
+  # ============================================
+  publish-v2-wifi:
+    name: Publish WaterP1MeterKit V2 WiFi
+    needs: [detect-changes]
+    if: needs.detect-changes.outputs.v2_changed == 'true'
+    uses: ./.github/workflows/esphome-build.yml
+    with:
+      files: waterp1meterkit-v2/waterp1meterkit-wifi.yaml
+      name: WaterP1MeterKit V2 WiFi
+      manifest_filename: waterp1meterkit-v2-wifi-manifest.json
+      clean: false
+      esphome_version: latest
+      directory_name: waterp1meterkit-v2-wifi
+      project_version: ${{ needs.detect-changes.outputs.v2_version }}
+      base_path: waterp1meterkit-v2
+
+  publish-v2-ethernet:
+    name: Publish WaterP1MeterKit V2 Ethernet
+    needs: [detect-changes]
+    if: needs.detect-changes.outputs.v2_changed == 'true'
+    uses: ./.github/workflows/esphome-build.yml
+    with:
+      files: waterp1meterkit-v2/waterp1meterkit-ethernet.yaml
+      name: WaterP1MeterKit V2 Ethernet
+      manifest_filename: waterp1meterkit-v2-ethernet-manifest.json
+      clean: false
+      esphome_version: latest
+      directory_name: waterp1meterkit-v2-ethernet
+      project_version: ${{ needs.detect-changes.outputs.v2_version }}
+      base_path: waterp1meterkit-v2
+
+  # ============================================
+  # WaterP1MeterKit V3 Variants
+  # ============================================
+  publish-v3-wifi:
+    name: Publish WaterP1MeterKit V3 WiFi
+    needs: [detect-changes]
+    if: needs.detect-changes.outputs.v3_changed == 'true'
+    uses: ./.github/workflows/esphome-build.yml
+    with:
+      files: waterp1meterkit-v3/waterp1meterkit-wifi.yaml
+      name: WaterP1MeterKit V3 WiFi
+      manifest_filename: waterp1meterkit-v3-wifi-manifest.json
+      clean: false
+      esphome_version: latest
+      directory_name: waterp1meterkit-v3-wifi
+      project_version: ${{ needs.detect-changes.outputs.v3_version }}
+      base_path: waterp1meterkit-v3
+
+  publish-v3-ethernet:
+    name: Publish WaterP1MeterKit V3 Ethernet
+    needs: [detect-changes]
+    if: needs.detect-changes.outputs.v3_changed == 'true'
+    uses: ./.github/workflows/esphome-build.yml
+    with:
+      files: waterp1meterkit-v3/waterp1meterkit-ethernet.yaml
+      name: WaterP1MeterKit V3 Ethernet
+      manifest_filename: waterp1meterkit-v3-ethernet-manifest.json
+      clean: false
+      esphome_version: latest
+      directory_name: waterp1meterkit-v3-ethernet
+      project_version: ${{ needs.detect-changes.outputs.v3_version }}
+      base_path: waterp1meterkit-v3

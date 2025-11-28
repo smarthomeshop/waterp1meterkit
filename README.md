@@ -1,48 +1,109 @@
-# WaterP1MeterKit for Home Assistant
+# WaterP1MeterKit for Home Assistant / ESPHome
 
 ![WaterP1MeterKit Logo](images/waterp1meterkit-logo.png)
 
-The WaterP1MeterKit is an all-in-one solution for monitoring both water and energy consumption in your home through Home Assistant. This comprehensive kit offers real-time insights into your water and electricity usage and enables you to track trends over time. It's the ideal choice for those looking to make informed decisions about resource management in their household.
+## 🌟 The Ultimate All-in-One Energy & Water Monitor
 
-Check our website to view if your watermeter and energymeter is compatible: https://waterp1meterkit.nl/en
+**WaterP1MeterKit** is the first and only solution that combines **P1 energy meter reading** and **water meter monitoring** in a single device — with support for **WiFi, Ethernet, and PoE**!
 
-**Important Notice:** The WaterP1MeterKit supports both Wi-Fi and Ethernet connectivity. Out of the box, it comes with Wi-Fi support. If you want to use the Ethernet port (with optional PoE), you'll need to reflash the device with the Ethernet version firmware the YAML-code and .bin file can be found in this repository. Please make sure you have version V1 or V2 of the kit.
+> 🎉 As the very first water meter kit ever made for Home Assistant, we are the best choice for measuring your water meter and/or energy meter. 100% local, open-source, and built for Home Assistant users!
 
-## Features
+### ⚡ What Makes Us Unique
 
-- **Real-time Monitoring:** Get real-time data on your water and electricity consumption, including water flow rate and energy usage.
+| Feature | WaterP1MeterKit |
+|---------|-----------------|
+| 📊 **Dual Monitoring** | Measure **both P1 energy AND water** simultaneously — or choose just one |
+| 🌐 **Triple Connectivity** | **WiFi**, **Ethernet**, and **PoE** support (V2+) |
+| 🏠 **100% Local** | No cloud, no subscriptions — runs entirely on your Home Assistant |
+| 🔌 **Single Device** | No need for separate energy and water monitors |
 
-- **Data Visualization:** Visualize your resource usage trends per hour, day, month, or year in liters and kilowatt-hours, right within Home Assistant.
+---
 
-- **Environment Monitoring:** The kit also measures the temperature and humidity of the space where your meters are located.
+## Key Features
 
-- **Easy Installation:** The WaterP1MeterKit is designed for straightforward installation on your existing water supply line and electrical meter.
+- **🔄 Flexible monitoring**: Choose to monitor **only energy**, **only water**, or **both at the same time** with a single kit!
+- **⚡ P1 Energy monitoring**: Full DSMR support (2.2 - 5.0) — consumption, production, voltage, current, gas
+- **💧 Water monitoring**: Real-time water flow (L/min) and total consumption (m³)
+- **🌡️ Environment sensors**: Temperature and humidity monitoring (HDC1080)
+- **🌐 WiFi + Ethernet + PoE**: Choose your preferred connectivity (PoE on V2+)
+- **🔒 Fully local**: No cloud required — works offline with Home Assistant
+- **📦 Pre-flashed**: Comes ready to use with WiFi firmware out of the box
+- **🔧 Expansion port**: V3 supports water leak sensor or door sensor add-ons
 
-- **Dual Connectivity:** The WaterP1MeterKit supports both Wi-Fi and Ethernet connectivity. Out of the box, it comes with Wi-Fi support, but you can choose to reflash it with the Ethernet version for a more stable wired connection.
+Learn more on our website: https://waterp1meterkit.nl/en
 
-- **Power over Ethernet (PoE) Support:** V2 has build-in PoE support. For V1, you have the option to use a PoE splitter to power the kit via PoE, eliminating the need for additional power cables. Check out our website for more information.s
+---
 
-- **Integration with Home Assistant:** Seamlessly integrate the kit with Home Assistant using the provided blueprints.
+## Hardware Versions
 
-## Contents of the Kit
+We have 3 hardware versions, each with WiFi and Ethernet firmware variants:
 
-- Water P1 Meter Kit
-- Energy meter cable (P1 meter)
-- All necessary cables and watermeter sensor
-- Quick Start Guide
+| Feature | V1 | V2 | V3 |
+|---------|----|----|-----|
+| WiFi | ✅ | ✅ | ✅ |
+| Ethernet | ✅ | ✅ | ✅ |
+| **PoE** | ❌ | ✅ | ✅ |
+| Water Sensor | Fixed | Fixed | **Detachable** |
+| Expansion Port | ❌ | ❌ | ✅ |
+| Improved Precision | - | - | ✅ |
 
-## Installation
+See the README in each version folder for detailed specifications.
 
-Detailed installation instructions and Home Assistant integration guides can be found on our website [SmartHomeShop.io](https://smarthomeshop.io/en).
+---
+
+## Getting Started
+
+1. **Hardware**: Connect power (USB-C or PoE for V2/V3)
+2. **Connect**: All devices come **pre-flashed with WiFi firmware** out of the box
+3. **Onboarding**: WiFi builds support captive portal for easy setup
+4. **Switch to Ethernet**: After connecting to Home Assistant, you can easily switch to Ethernet firmware using a simple switch in the device settings
+
+📺 **Installation videos** available on YouTube for popular water meters: Sensus, Itron, Actaris, Schlumberger, Elster, and Honeywell.
+
+For full documentation see our quick start guide: https://smarthomeshop.io/quick-start-waterp1meterkit
+
+---
+
+## Repository Layout
+
+```
+waterp1meterkit/
+├── waterp1meterkit-v1/     # V1 ESPHome configurations
+│   ├── base.yaml           # Shared configuration
+│   ├── waterp1meterkit-wifi.yaml
+│   └── waterp1meterkit-ethernet.yaml
+├── waterp1meterkit-v2/     # V2 ESPHome configurations (+ PoE)
+│   ├── base.yaml
+│   ├── waterp1meterkit-wifi.yaml
+│   └── waterp1meterkit-ethernet.yaml
+├── waterp1meterkit-v3/     # V3 ESPHome configurations (+ detachable sensor)
+│   ├── base.yaml
+│   ├── waterp1meterkit-wifi.yaml
+│   └── waterp1meterkit-ethernet.yaml
+├── .github/workflows/      # CI to build and publish firmware to gh-pages
+└── images/
+```
+
+## Firmware Downloads
+
+Pre-built firmware is available on the `gh-pages` branch:
+- V1 WiFi: `waterp1meterkit-v1-wifi-manifest.json`
+- V1 Ethernet: `waterp1meterkit-v1-ethernet-manifest.json`
+- V2 WiFi: `waterp1meterkit-v2-wifi-manifest.json`
+- V2 Ethernet: `waterp1meterkit-v2-ethernet-manifest.json`
+- V3 WiFi: `waterp1meterkit-v3-wifi-manifest.json`
+- V3 Ethernet: `waterp1meterkit-v3-ethernet-manifest.json`
 
 ## Contributing
 
-Contributions are welcome! If you'd like to contribute to the project, please make a PR.
+PRs and issues are welcome. Please keep changes modular and follow ESPHome best practices.
 
 ## Support
 
-For any questions or issues, please visit our [Discord community](https://smarthomeshop.io/discord) where you can find help and connect with other users.
+- 🌐 Product info and guides: https://waterp1meterkit.nl/en
+- 🛒 Store: https://smarthomeshop.io
+- 💬 Community & support (Discord): https://smarthomeshop.io/discord
 
 ## License
 
-This project is licensed under the [MIT License](LICENSE).
+This project is released under the MIT License (see `LICENSE`).
