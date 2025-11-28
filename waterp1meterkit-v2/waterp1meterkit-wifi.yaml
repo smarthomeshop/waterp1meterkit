@@ -9,6 +9,7 @@ dashboard_import:
 wifi:
   ssid: !secret wifi_ssid
   password: !secret wifi_password
+  fast_connect: true
 
   # Enable fallback hotspot (captive portal) in case wifi connection fails
   ap:
@@ -16,6 +17,10 @@ wifi:
     password: ${device_name}
 
 captive_portal:
+
+# Improv BLE (for WiFi provisioning via Bluetooth)
+esp32_improv:
+  authorizer: none
 
 # Improv Serial (for WiFi provisioning via USB)
 improv_serial:
