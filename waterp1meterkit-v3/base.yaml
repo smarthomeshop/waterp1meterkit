@@ -4,7 +4,7 @@
 substitutions:
   device_name: waterp1meterkit
   friendly_name: WaterP1MeterKit
-  project_version: "1.3"
+  project_version: "1.4"
   hardware_version: "V3"
   # Manifest URLs for OTA firmware updates
   wifi_manifest_url: "https://smarthomeshop.github.io/waterp1meterkit/waterp1meterkit-v3-wifi-manifest.json"
