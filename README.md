@@ -34,6 +34,56 @@ Learn more on our website: https://waterp1meterkit.nl/en
 
 ---
 
+## 💧 Water Meter - Persistent Total
+
+The WaterP1MeterKit stores your water consumption **persistently** — your meter reading survives reboots and firmware updates!
+
+### How It Works
+
+| Sensor | Description |
+|--------|-------------|
+| **Water Total Consumption** | Raw pulses since boot (resets on reboot) - **Use this for Energy Dashboard!** |
+| **Water Meter Initial Value** | Set your current physical meter reading (input field) |
+| **Water Meter Total** | Initial Value + Total Consumption = Your actual meter reading |
+
+### First Time Setup
+
+1. Read your physical water meter (e.g., `125.500 m³`)
+2. Enter this value in **Water Meter Initial Value** in Home Assistant
+3. **Water Meter Total** will now show your actual meter reading and track all usage
+
+> 💡 **Energy Dashboard:** Keep using `Water Total Consumption` - it works perfectly! Home Assistant tracks the history even when it resets on reboot.
+>
+> 💡 **Actual meter reading:** Use `Water Meter Total` to see your real water meter value (matches your physical meter).
+
+### When Is Data Saved?
+
+The kit uses **smart saving** to protect flash memory while keeping your data safe:
+
+| Trigger | When? | Always saves? |
+|---------|-------|---------------|
+| **Interval check** | Every 5 minutes | Only if 50+ liters difference |
+| **Shutdown** | OTA, restart, factory reset | ✅ Always |
+
+> 💡 **Why 50 liters?** A typical faucet uses 6-10 L/min. In 5 minutes that's ~30-50 liters. This threshold ensures your data is saved at least once during normal water usage while protecting flash memory for long device lifetime.
+
+### How `Water Meter Total` Stays Accurate
+
+The kit saves your meter reading:
+- **Every 5 minutes** (if 50+ liters used since last save)
+- **On every shutdown** (OTA, restart, factory reset)
+
+| Scenario | `Water Meter Total` | Max Loss |
+|----------|---------------------|----------|
+| OTA firmware update | ✅ Saved before reboot | 0 L |
+| Manual restart | ✅ Saved before reboot | 0 L |
+| Factory reset | ✅ Saved before reset | 0 L |
+| Power outage | ⚠️ May lose unsaved data | ~50 L |
+
+> 📊 **Perspective:** 50 liters on a yearly consumption of ~40,000+ liters is just 0.1%. For most households, occasional power outages will have negligible impact on accuracy.
+
+---
+
 ## Hardware Versions
 
 We have 3 hardware versions, each with WiFi and Ethernet firmware variants:
