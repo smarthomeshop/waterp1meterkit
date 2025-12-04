@@ -1,0 +1,21 @@
+{
+  "name": "WaterP1MeterKit V3 WiFi",
+  "version": "1.4",
+  "home_assistant_domain": "esphome",
+  "new_install_skip_erase": false,
+  "builds": [
+    {
+      "chipFamily": "ESP32",
+      "ota": {
+        "path": "waterp1meterkit-v3-wifi/waterp1meterkit-esp32.ota.bin",
+        "md5": "ce33b88737b7d417506e9819dd1a47a1"
+      },
+      "parts": [
+        {
+          "path": "waterp1meterkit-v3-wifi/waterp1meterkit-esp32.factory.bin",
+          "offset": 0
+        }
+      ]
+    }
+  ]
+}
