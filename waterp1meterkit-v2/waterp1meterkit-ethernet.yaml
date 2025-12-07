@@ -1,5 +1,8 @@
 # WaterP1MeterKit V2 Ethernet Configuration
 
+substitutions:
+  default_network: "Ethernet"
+
 packages:
   base: !include base.yaml
 

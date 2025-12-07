@@ -1,6 +1,9 @@
 # WaterP1MeterKit V1 Ethernet Configuration (Legacy URL for backwards compatibility)
 # New users should use: github://smarthomeshop/waterp1meterkit/waterp1meterkit-v1/waterp1meterkit-ethernet.yaml@main
 
+substitutions:
+  default_network: "Ethernet"
+
 packages:
   base: !include waterp1meterkit-v1/base.yaml
 
