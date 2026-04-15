@@ -1,2 +1,10 @@
 **/.DS_Store
+.venv/
 ROADMAP-ANALYTICS.md
+plan2026.md
+CLOUD-INTEGRATION-GUIDE.md
+
+# Temporary: Cloud files (not public yet)
+waterp1meterkit-v*/cloud.yaml
+waterp1meterkit-v*/waterp1meterkit-wifi-cloud.yaml
+waterp1meterkit-v*/waterp1meterkit-ethernet-cloud.yaml

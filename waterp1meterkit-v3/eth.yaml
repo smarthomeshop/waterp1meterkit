@@ -1,0 +1,30 @@
+# yamllint disable
+# Ethernet mixin for WaterP1MeterKit V3 variants
+# Provides Ethernet connectivity via LAN8720 PHY
+
+ethernet:
+  type: LAN8720
+  mdc_pin: GPIO23
+  mdio_pin: GPIO18
+  clk_mode: GPIO17_OUT
+  phy_addr: 1
+  power_pin: GPIO33
+
+text_sensor:
+  # Ethernet info sensors
+  - platform: ethernet_info
+    ip_address:
+      id: ethernet_ip_address
+      name: "${friendly_name} IP Address"
+      icon: "mdi:network-outline"
+    # MAC address (used for cloud device identification if cloud enabled)
+    mac_address:
+      id: wifi_mac_address
+      name: "${friendly_name} MAC Address"
+      entity_category: diagnostic
+      icon: "mdi:identifier"
+
+  # Dummy sensor for cloud.yaml compatibility (wifi variant uses this ID)
+  - platform: template
+    id: wifi_ip_address
+    internal: true

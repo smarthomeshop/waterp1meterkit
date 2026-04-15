@@ -19,26 +19,82 @@ on:
     branches:
       - main
     paths:
+      - '.github/workflows/**'
       - 'waterp1meterkit-v1/**'
       - 'waterp1meterkit-v2/**'
       - 'waterp1meterkit-v3/**'
-    tags:
-      - 'v*'
 
 permissions:
   contents: write
 
 jobs:
+  validate-changelog:
+    name: Validate changelog updates
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Require changelog update for firmware changes
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ "${{ github.event_name }}" != "pull_request" && "${{ github.event_name }}" != "push" ]]; then
+            echo "Event does not require changelog validation"
+            exit 0
+          fi
+
+          if [[ "${{ github.event_name }}" == "push" && "${{ github.actor }}" == "github-actions[bot]" ]]; then
+            echo "Skipping changelog validation for GitHub Actions version bump commit"
+            exit 0
+          fi
+
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            BASE_SHA=${{ github.event.pull_request.base.sha }}
+            HEAD_SHA=${{ github.event.pull_request.head.sha }}
+          else
+            BASE_SHA=${{ github.event.before }}
+            HEAD_SHA=${{ github.sha }}
+          fi
+
+          if [[ "$BASE_SHA" == "0000000000000000000000000000000000000000" ]]; then
+            echo "First push detected; skipping changelog validation"
+            exit 0
+          fi
+
+          CHANGED_FILES=$(git diff --name-only "$BASE_SHA" "$HEAD_SHA")
+          echo "Changed files:"
+          echo "$CHANGED_FILES"
+
+          if ! echo "$CHANGED_FILES" | grep -Eq '^waterp1meterkit-v1/.*\.ya?ml$|^waterp1meterkit-v2/.*\.ya?ml$|^waterp1meterkit-v3/.*\.ya?ml$'; then
+            echo "No firmware YAML changes detected; changelog update not required"
+            exit 0
+          fi
+
+          if echo "$CHANGED_FILES" | grep -qx 'CHANGELOG.md'; then
+            echo "CHANGELOG.md updated"
+            exit 0
+          fi
+
+          echo "::error file=CHANGELOG.md::Firmware YAML changes require a customer-facing CHANGELOG.md update."
+          exit 1
+
   # ============================================
   # Detect which versions have changed
   # ============================================
   detect-changes:
     name: Detect changed versions
+    needs: [validate-changelog]
     runs-on: ubuntu-latest
     outputs:
       v1_changed: ${{ steps.changes.outputs.v1 }}
       v2_changed: ${{ steps.changes.outputs.v2 }}
       v3_changed: ${{ steps.changes.outputs.v3 }}
+      v1_build: ${{ steps.changes.outputs.v1_build }}
+      v2_build: ${{ steps.changes.outputs.v2_build }}
+      v3_build: ${{ steps.changes.outputs.v3_build }}
       v1_version: ${{ steps.versions.outputs.v1_version }}
       v2_version: ${{ steps.versions.outputs.v2_version }}
       v3_version: ${{ steps.versions.outputs.v3_version }}
@@ -58,6 +114,9 @@ jobs:
             echo "v1=true" >> $GITHUB_OUTPUT
             echo "v2=true" >> $GITHUB_OUTPUT
             echo "v3=true" >> $GITHUB_OUTPUT
+            echo "v1_build=true" >> $GITHUB_OUTPUT
+            echo "v2_build=true" >> $GITHUB_OUTPUT
+            echo "v3_build=true" >> $GITHUB_OUTPUT
             exit 0
           fi
 
@@ -67,6 +126,9 @@ jobs:
             echo "v1=true" >> $GITHUB_OUTPUT
             echo "v2=true" >> $GITHUB_OUTPUT
             echo "v3=true" >> $GITHUB_OUTPUT
+            echo "v1_build=true" >> $GITHUB_OUTPUT
+            echo "v2_build=true" >> $GITHUB_OUTPUT
+            echo "v3_build=true" >> $GITHUB_OUTPUT
             exit 0
           fi
 
@@ -76,6 +138,9 @@ jobs:
             echo "v1=true" >> $GITHUB_OUTPUT
             echo "v2=true" >> $GITHUB_OUTPUT
             echo "v3=true" >> $GITHUB_OUTPUT
+            echo "v1_build=true" >> $GITHUB_OUTPUT
+            echo "v2_build=true" >> $GITHUB_OUTPUT
+            echo "v3_build=true" >> $GITHUB_OUTPUT
             exit 0
           fi
 
@@ -95,17 +160,39 @@ jobs:
             echo "v1=true" >> $GITHUB_OUTPUT
             echo "v2=true" >> $GITHUB_OUTPUT
             echo "v3=true" >> $GITHUB_OUTPUT
+            echo "v1_build=true" >> $GITHUB_OUTPUT
+            echo "v2_build=true" >> $GITHUB_OUTPUT
+            echo "v3_build=true" >> $GITHUB_OUTPUT
             exit 0
           fi
 
+          CHANGED_FILES=$(git diff --name-only $BASE_SHA $HEAD_SHA)
+          echo "Changed files:"
+          echo "$CHANGED_FILES"
+
           # Detect changes in each version folder
-          V1_CHANGED=$(git diff --name-only $BASE_SHA $HEAD_SHA | grep -q "^waterp1meterkit-v1/" && echo "true" || echo "false")
-          V2_CHANGED=$(git diff --name-only $BASE_SHA $HEAD_SHA | grep -q "^waterp1meterkit-v2/" && echo "true" || echo "false")
-          V3_CHANGED=$(git diff --name-only $BASE_SHA $HEAD_SHA | grep -q "^waterp1meterkit-v3/" && echo "true" || echo "false")
+          V1_CHANGED=$(echo "$CHANGED_FILES" | grep -Eq "^waterp1meterkit-v1/.*\.ya?ml$" && echo "true" || echo "false")
+          V2_CHANGED=$(echo "$CHANGED_FILES" | grep -Eq "^waterp1meterkit-v2/.*\.ya?ml$" && echo "true" || echo "false")
+          V3_CHANGED=$(echo "$CHANGED_FILES" | grep -Eq "^waterp1meterkit-v3/.*\.ya?ml$" && echo "true" || echo "false")
+
+          if echo "$CHANGED_FILES" | grep -q "^.github/workflows/" && \
+             [[ "$V1_CHANGED" == "false" && "$V2_CHANGED" == "false" && "$V3_CHANGED" == "false" ]]; then
+            echo "Workflow-only changes detected, rebuilding all versions without creating new firmware versions"
+            echo "v1=false" >> $GITHUB_OUTPUT
+            echo "v2=false" >> $GITHUB_OUTPUT
+            echo "v3=false" >> $GITHUB_OUTPUT
+            echo "v1_build=true" >> $GITHUB_OUTPUT
+            echo "v2_build=true" >> $GITHUB_OUTPUT
+            echo "v3_build=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
 
           echo "v1=$V1_CHANGED" >> $GITHUB_OUTPUT
           echo "v2=$V2_CHANGED" >> $GITHUB_OUTPUT
           echo "v3=$V3_CHANGED" >> $GITHUB_OUTPUT
+          echo "v1_build=$V1_CHANGED" >> $GITHUB_OUTPUT
+          echo "v2_build=$V2_CHANGED" >> $GITHUB_OUTPUT
+          echo "v3_build=$V3_CHANGED" >> $GITHUB_OUTPUT
 
           echo "V1 changed: $V1_CHANGED"
           echo "V2 changed: $V2_CHANGED"
@@ -139,21 +226,22 @@ jobs:
               return
             fi
 
-            # For tags, use the tag version
-            if [[ "${GITHUB_REF_TYPE}" == "tag" && "${GITHUB_REF_NAME}" =~ ^v[0-9]+(\.[0-9]+)*$ ]]; then
-              NEW_VERSION="${GITHUB_REF_NAME#v}"
+            if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
+              echo "${OUTPUT_NAME}=${CURRENT_VERSION}" >> $GITHUB_OUTPUT
+              echo "Tag build - keeping version: $CURRENT_VERSION"
+              return
+            fi
+
+            # Increment minor version
+            if [[ "$CURRENT_VERSION" =~ ^([0-9]+)\.([0-9]+)(.*)$ ]]; then
+              MAJOR="${BASH_REMATCH[1]}"
+              MINOR="${BASH_REMATCH[2]}"
+              SUFFIX="${BASH_REMATCH[3]}"
+              NEW_MINOR=$((MINOR + 1))
+              NEW_VERSION="${MAJOR}.${NEW_MINOR}${SUFFIX}"
             else
-              # Increment minor version
-              if [[ "$CURRENT_VERSION" =~ ^([0-9]+)\.([0-9]+)(.*)$ ]]; then
-                MAJOR="${BASH_REMATCH[1]}"
-                MINOR="${BASH_REMATCH[2]}"
-                SUFFIX="${BASH_REMATCH[3]}"
-                NEW_MINOR=$((MINOR + 1))
-                NEW_VERSION="${MAJOR}.${NEW_MINOR}${SUFFIX}"
-              else
-                SHORTSHA=$(echo "${GITHUB_SHA}" | cut -c1-7)
-                NEW_VERSION="dev-${SHORTSHA}"
-              fi
+              SHORTSHA=$(echo "${GITHUB_SHA}" | cut -c1-7)
+              NEW_VERSION="dev-${SHORTSHA}"
             fi
 
             echo "${OUTPUT_NAME}=${NEW_VERSION}" >> $GITHUB_OUTPUT
@@ -183,11 +271,25 @@ jobs:
             echo "v3_version=$V3_CURRENT" >> $GITHUB_OUTPUT
           fi
 
-      - name: Commit version updates
+      - name: Commit version updates and create tags
         # Don't update versions on scheduled builds (just rebuild with latest ESPHome)
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         shell: bash
         run: |
+          create_tag() {
+            local TAG_NAME=$1
+
+            if git rev-parse "$TAG_NAME" >/dev/null 2>&1; then
+              echo "Tag $TAG_NAME already exists, skipping"
+              return
+            fi
+
+            echo "Creating tag: $TAG_NAME"
+            git tag -a "$TAG_NAME" -m "Release $TAG_NAME"
+            git push origin "$TAG_NAME"
+            echo "Tag $TAG_NAME created and pushed"
+          }
+
           CHANGES_MADE=false
 
           # Update V1 if changed
@@ -222,6 +324,18 @@ jobs:
             
             git commit -m "$MSG" || exit 0
             git push || echo "Nothing to push"
+
+            if [[ "${{ steps.changes.outputs.v1 }}" == "true" && ! "${{ steps.versions.outputs.v1_version }}" =~ ^dev- ]]; then
+              create_tag "waterp1meterkit-v1-${{ steps.versions.outputs.v1_version }}"
+            fi
+
+            if [[ "${{ steps.changes.outputs.v2 }}" == "true" && ! "${{ steps.versions.outputs.v2_version }}" =~ ^dev- ]]; then
+              create_tag "waterp1meterkit-v2-${{ steps.versions.outputs.v2_version }}"
+            fi
+
+            if [[ "${{ steps.changes.outputs.v3 }}" == "true" && ! "${{ steps.versions.outputs.v3_version }}" =~ ^dev- ]]; then
+              create_tag "waterp1meterkit-v3-${{ steps.versions.outputs.v3_version }}"
+            fi
           fi
 
   # ============================================
@@ -230,7 +344,7 @@ jobs:
   publish-v1-wifi:
     name: Publish WaterP1MeterKit V1 WiFi
     needs: [detect-changes]
-    if: needs.detect-changes.outputs.v1_changed == 'true'
+    if: needs.detect-changes.outputs.v1_build == 'true'
     uses: ./.github/workflows/esphome-build.yml
     with:
       files: waterp1meterkit-v1/waterp1meterkit-wifi.yaml
@@ -245,7 +359,7 @@ jobs:
   publish-v1-ethernet:
     name: Publish WaterP1MeterKit V1 Ethernet
     needs: [detect-changes]
-    if: needs.detect-changes.outputs.v1_changed == 'true'
+    if: needs.detect-changes.outputs.v1_build == 'true'
     uses: ./.github/workflows/esphome-build.yml
     with:
       files: waterp1meterkit-v1/waterp1meterkit-ethernet.yaml
@@ -263,7 +377,7 @@ jobs:
   publish-v2-wifi:
     name: Publish WaterP1MeterKit V2 WiFi
     needs: [detect-changes]
-    if: needs.detect-changes.outputs.v2_changed == 'true'
+    if: needs.detect-changes.outputs.v2_build == 'true'
     uses: ./.github/workflows/esphome-build.yml
     with:
       files: waterp1meterkit-v2/waterp1meterkit-wifi.yaml
@@ -278,7 +392,7 @@ jobs:
   publish-v2-ethernet:
     name: Publish WaterP1MeterKit V2 Ethernet
     needs: [detect-changes]
-    if: needs.detect-changes.outputs.v2_changed == 'true'
+    if: needs.detect-changes.outputs.v2_build == 'true'
     uses: ./.github/workflows/esphome-build.yml
     with:
       files: waterp1meterkit-v2/waterp1meterkit-ethernet.yaml
@@ -296,7 +410,7 @@ jobs:
   publish-v3-wifi:
     name: Publish WaterP1MeterKit V3 WiFi
     needs: [detect-changes]
-    if: needs.detect-changes.outputs.v3_changed == 'true'
+    if: needs.detect-changes.outputs.v3_build == 'true'
     uses: ./.github/workflows/esphome-build.yml
     with:
       files: waterp1meterkit-v3/waterp1meterkit-wifi.yaml
@@ -308,10 +422,25 @@ jobs:
       project_version: ${{ needs.detect-changes.outputs.v3_version }}
       base_path: waterp1meterkit-v3
 
+  publish-v3-wifi-cloud:
+    name: Publish WaterP1MeterKit V3 WiFi Cloud
+    needs: [detect-changes]
+    if: needs.detect-changes.outputs.v3_build == 'true'
+    uses: ./.github/workflows/esphome-build.yml
+    with:
+      files: waterp1meterkit-v3/waterp1meterkit-wifi-cloud.yaml
+      name: WaterP1MeterKit V3 WiFi Cloud
+      manifest_filename: waterp1meterkit-v3-wifi-cloud-manifest.json
+      clean: false
+      esphome_version: latest
+      directory_name: waterp1meterkit-v3-wifi-cloud
+      project_version: ${{ needs.detect-changes.outputs.v3_version }}
+      base_path: waterp1meterkit-v3
+
   publish-v3-ethernet:
     name: Publish WaterP1MeterKit V3 Ethernet
     needs: [detect-changes]
-    if: needs.detect-changes.outputs.v3_changed == 'true'
+    if: needs.detect-changes.outputs.v3_build == 'true'
     uses: ./.github/workflows/esphome-build.yml
     with:
       files: waterp1meterkit-v3/waterp1meterkit-ethernet.yaml
@@ -322,3 +451,75 @@ jobs:
       directory_name: waterp1meterkit-v3-ethernet
       project_version: ${{ needs.detect-changes.outputs.v3_version }}
       base_path: waterp1meterkit-v3
+
+  publish-v3-ethernet-cloud:
+    name: Publish WaterP1MeterKit V3 Ethernet Cloud
+    needs: [detect-changes]
+    if: needs.detect-changes.outputs.v3_build == 'true'
+    uses: ./.github/workflows/esphome-build.yml
+    with:
+      files: waterp1meterkit-v3/waterp1meterkit-ethernet-cloud.yaml
+      name: WaterP1MeterKit V3 Ethernet Cloud
+      manifest_filename: waterp1meterkit-v3-ethernet-cloud-manifest.json
+      clean: false
+      esphome_version: latest
+      directory_name: waterp1meterkit-v3-ethernet-cloud
+      project_version: ${{ needs.detect-changes.outputs.v3_version }}
+      base_path: waterp1meterkit-v3
+
+  create-releases:
+    name: Create GitHub releases
+    needs: [detect-changes]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create releases for changed hardware versions
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          create_release() {
+            local tag_name=$1
+            local title=$2
+            local heading="## [${title}]"
+
+            if gh release view "$tag_name" -R "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+              echo "Release $tag_name already exists, skipping"
+              return
+            fi
+
+            awk -v heading="$heading" '
+              $0 == heading { found=1; next }
+              found && /^## \[/ { exit }
+              found { print }
+            ' CHANGELOG.md > release-notes.txt
+
+            if [[ ! -s release-notes.txt ]]; then
+              printf '%s\n\n%s\n' \
+                "Customer-facing firmware notes live in CHANGELOG.md." \
+                "Changelog: https://github.com/${GITHUB_REPOSITORY}/blob/main/CHANGELOG.md" \
+                > release-notes.txt
+            fi
+
+            gh release create "$tag_name" \
+              -R "$GITHUB_REPOSITORY" \
+              --verify-tag \
+              --title "$title" \
+              --notes-file release-notes.txt
+          }
+
+          if [[ "${{ needs.detect-changes.outputs.v1_changed }}" == "true" && ! "${{ needs.detect-changes.outputs.v1_version }}" =~ ^dev- ]]; then
+            create_release "waterp1meterkit-v1-${{ needs.detect-changes.outputs.v1_version }}" "WaterP1MeterKit V1 ${{ needs.detect-changes.outputs.v1_version }}"
+          fi
+
+          if [[ "${{ needs.detect-changes.outputs.v2_changed }}" == "true" && ! "${{ needs.detect-changes.outputs.v2_version }}" =~ ^dev- ]]; then
+            create_release "waterp1meterkit-v2-${{ needs.detect-changes.outputs.v2_version }}" "WaterP1MeterKit V2 ${{ needs.detect-changes.outputs.v2_version }}"
+          fi
+
+          if [[ "${{ needs.detect-changes.outputs.v3_changed }}" == "true" && ! "${{ needs.detect-changes.outputs.v3_version }}" =~ ^dev- ]]; then
+            create_release "waterp1meterkit-v3-${{ needs.detect-changes.outputs.v3_version }}" "WaterP1MeterKit V3 ${{ needs.detect-changes.outputs.v3_version }}"
+          fi

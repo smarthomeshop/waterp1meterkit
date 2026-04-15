@@ -1,25 +1,13 @@
 # WaterP1MeterKit V2 Ethernet Configuration
+# Local-only version (no cloud functionality)
+# For cloud-enabled version, use waterp1meterkit-ethernet-cloud.yaml
 
 substitutions:
   default_network: "Ethernet"
 
 packages:
   base: !include base.yaml
+  eth: !include eth.yaml
 
 dashboard_import:
   package_import_url: github://smarthomeshop/waterp1meterkit/waterp1meterkit-v2/waterp1meterkit-ethernet.yaml@main
-
-ethernet:
-  type: LAN8720
-  mdc_pin: GPIO23
-  mdio_pin: GPIO18
-  clk_mode: GPIO17_OUT
-  phy_addr: 1
-  power_pin: GPIO33
-
-text_sensor:
-  - platform: ethernet_info
-    ip_address:
-      id: ethernet_ip_address
-      name: "${friendly_name} IP Address"
-      icon: "mdi:network-outline"
