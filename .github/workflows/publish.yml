@@ -425,7 +425,7 @@ jobs:
   publish-v3-wifi-cloud:
     name: Publish WaterP1MeterKit V3 WiFi Cloud
     needs: [detect-changes]
-    if: needs.detect-changes.outputs.v3_build == 'true'
+    if: needs.detect-changes.outputs.v3_build == 'true' && hashFiles('waterp1meterkit-v3/waterp1meterkit-wifi-cloud.yaml') != ''
     uses: ./.github/workflows/esphome-build.yml
     with:
       files: waterp1meterkit-v3/waterp1meterkit-wifi-cloud.yaml
@@ -455,7 +455,7 @@ jobs:
   publish-v3-ethernet-cloud:
     name: Publish WaterP1MeterKit V3 Ethernet Cloud
     needs: [detect-changes]
-    if: needs.detect-changes.outputs.v3_build == 'true'
+    if: needs.detect-changes.outputs.v3_build == 'true' && hashFiles('waterp1meterkit-v3/waterp1meterkit-ethernet-cloud.yaml') != ''
     uses: ./.github/workflows/esphome-build.yml
     with:
       files: waterp1meterkit-v3/waterp1meterkit-ethernet-cloud.yaml
@@ -497,6 +497,14 @@ jobs:
               found && /^## \[/ { exit }
               found { print }
             ' CHANGELOG.md > release-notes.txt
+
+            if [[ ! -s release-notes.txt ]]; then
+              awk '
+                $0 == "## [Unreleased]" { found=1; next }
+                found && /^## \[/ { exit }
+                found { print }
+              ' CHANGELOG.md > release-notes.txt
+            fi
 
             if [[ ! -s release-notes.txt ]]; then
               printf '%s\n\n%s\n' \
