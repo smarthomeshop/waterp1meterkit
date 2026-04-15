@@ -1,6 +1,6 @@
 {
   "name": "WaterP1MeterKit V3 Ethernet",
-  "version": "1.6",
+  "version": "1.7",
   "home_assistant_domain": "esphome",
   "new_install_skip_erase": false,
   "builds": [
@@ -8,7 +8,7 @@
       "chipFamily": "ESP32",
       "ota": {
         "path": "waterp1meterkit-v3-ethernet/waterp1meterkit-esp32.ota.bin",
-        "md5": "05b83b8c3e6a867d325ad4c7b8a4b071"
+        "md5": "1836d056614a2345eb9e74ca13bbfe94"
       },
       "parts": [
         {
