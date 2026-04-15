@@ -109,6 +109,8 @@ esp32:
   board: esp32dev
   framework:
     type: arduino
+    advanced:
+      enable_ota_rollback: false
 
 # Enable logging
 logger:

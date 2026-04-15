@@ -7,6 +7,7 @@ This changelog starts on 2026-04-14. Earlier firmware versions existed before th
 ## [Unreleased]
 
 - Add customer-facing firmware notes here before merging a PR.
+- OTA behavior was adjusted on V1, V2, and V3 to disable automatic rollback after an OTA update.
 
 ## [WaterP1MeterKit V1 1.6] - 2026-04-15
 
