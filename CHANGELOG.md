@@ -7,6 +7,7 @@ This changelog starts on 2026-04-14. Earlier firmware versions existed before th
 ## [Unreleased]
 
 - Add customer-facing firmware notes here before merging a PR.
+- Water Meter Initial Value is now saved immediately when entered, so a sudden power loss right after manual input no longer resets the stored meter reading.
 
 ## [WaterP1MeterKit V1 1.7] - 2026-04-15
 

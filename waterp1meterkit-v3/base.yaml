@@ -203,8 +203,9 @@ number:
             } else {
               id(water_pulse_offset) = 0.0;
             }
+            global_preferences->sync();
             id(sensor_water_meter_total).update();
-            ESP_LOGI("water", "Water meter initial value set to: %.3f m³", x);
+            ESP_LOGI("water", "Water meter initial value saved immediately: %.3f m³", x);
 
 # Water Leak Sensor (V3 specific)
 binary_sensor:
