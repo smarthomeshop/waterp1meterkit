@@ -9,6 +9,7 @@ packages:
 
 dashboard_import:
   package_import_url: github://smarthomeshop/waterp1meterkit/waterp1meterkit-ethernet.yaml@main
+  import_full_config: false
 
 ethernet:
   type: LAN8720
@@ -24,7 +25,6 @@ text_sensor:
       id: ethernet_ip_address
       name: "${friendly_name} IP Address"
       icon: "mdi:network-outline"
-
 
 
 

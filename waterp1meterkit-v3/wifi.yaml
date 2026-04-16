@@ -3,14 +3,11 @@
 # Provides WiFi connectivity, captive portal, and improv provisioning
 
 wifi:
-  ssid: !secret wifi_ssid
-  password: !secret wifi_password
   fast_connect: true
 
   # Enable fallback hotspot (captive portal) in case wifi connection fails
   ap:
     ssid: ${device_name}
-    password: ${device_name}
 
 captive_portal:
 

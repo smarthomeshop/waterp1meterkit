@@ -11,3 +11,4 @@ packages:
 
 dashboard_import:
   package_import_url: github://smarthomeshop/waterp1meterkit/waterp1meterkit-v2/waterp1meterkit-ethernet.yaml@main
+  import_full_config: false
