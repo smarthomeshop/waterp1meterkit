@@ -24,16 +24,26 @@ The WaterP1MeterKit reads DSMR telegrams from the P1 port of your smart meter an
 
 We publish firmware for three hardware revisions.
 
-| Feature | V1 | V2 | V3 |
-|---------|----|----|----|
-| WiFi | Yes | Yes | Yes |
-| Ethernet | Yes | Yes | Yes |
-| PoE | No | Yes | Yes |
-| Water sensor | Fixed | Fixed | Detachable |
-| Expansion port | No | No | Yes |
-| Improved precision | No | No | Yes |
+| Version | Chip | Connectivity | Description |
+|---------|------|--------------|-------------|
+| V1 | ESP32 | WiFi and Ethernet | Original combined P1 and water monitor with fixed water sensor |
+| V2 | ESP32 | WiFi, Ethernet, and PoE | Updated hardware with PoE support |
+| V3 | ESP32 | WiFi, Ethernet, and PoE | Detachable water sensor, expansion support, and improved precision |
 
 See the README in each version folder for hardware-specific details.
+
+## Variants
+
+We publish customer-facing WiFi and Ethernet firmware for each hardware revision.
+
+| Hardware | Variant | Description |
+|----------|---------|-------------|
+| V1 (ESP32) | WiFi | Standard WiFi connectivity |
+| V1 (ESP32) | Ethernet | Wired Ethernet connectivity |
+| V2 (ESP32) | WiFi | WiFi firmware for PoE-capable V2 hardware |
+| V2 (ESP32) | Ethernet | Wired Ethernet firmware for PoE-capable V2 hardware |
+| V3 (ESP32) | WiFi | WiFi firmware for detachable-sensor V3 hardware |
+| V3 (ESP32) | Ethernet | Wired Ethernet firmware for detachable-sensor V3 hardware |
 
 ## Water Meter Total
 
