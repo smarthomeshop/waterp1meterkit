@@ -95,6 +95,8 @@ jobs:
       v1_build: ${{ steps.changes.outputs.v1_build }}
       v2_build: ${{ steps.changes.outputs.v2_build }}
       v3_build: ${{ steps.changes.outputs.v3_build }}
+      v3_wifi_cloud_exists: ${{ steps.variant-files.outputs.v3_wifi_cloud_exists }}
+      v3_ethernet_cloud_exists: ${{ steps.variant-files.outputs.v3_ethernet_cloud_exists }}
       v1_version: ${{ steps.versions.outputs.v1_version }}
       v2_version: ${{ steps.versions.outputs.v2_version }}
       v3_version: ${{ steps.versions.outputs.v3_version }}
@@ -197,6 +199,24 @@ jobs:
           echo "V1 changed: $V1_CHANGED"
           echo "V2 changed: $V2_CHANGED"
           echo "V3 changed: $V3_CHANGED"
+
+      - name: Detect optional variant files
+        id: variant-files
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ -f "waterp1meterkit-v3/waterp1meterkit-wifi-cloud.yaml" ]]; then
+            echo "v3_wifi_cloud_exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "v3_wifi_cloud_exists=false" >> $GITHUB_OUTPUT
+          fi
+
+          if [[ -f "waterp1meterkit-v3/waterp1meterkit-ethernet-cloud.yaml" ]]; then
+            echo "v3_ethernet_cloud_exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "v3_ethernet_cloud_exists=false" >> $GITHUB_OUTPUT
+          fi
 
       - name: Update version numbers for changed versions
         id: versions
@@ -425,7 +445,7 @@ jobs:
   publish-v3-wifi-cloud:
     name: Publish WaterP1MeterKit V3 WiFi Cloud
     needs: [detect-changes]
-    if: needs.detect-changes.outputs.v3_build == 'true' && hashFiles('waterp1meterkit-v3/waterp1meterkit-wifi-cloud.yaml') != ''
+    if: needs.detect-changes.outputs.v3_build == 'true' && needs.detect-changes.outputs.v3_wifi_cloud_exists == 'true'
     uses: ./.github/workflows/esphome-build.yml
     with:
       files: waterp1meterkit-v3/waterp1meterkit-wifi-cloud.yaml
@@ -455,7 +475,7 @@ jobs:
   publish-v3-ethernet-cloud:
     name: Publish WaterP1MeterKit V3 Ethernet Cloud
     needs: [detect-changes]
-    if: needs.detect-changes.outputs.v3_build == 'true' && hashFiles('waterp1meterkit-v3/waterp1meterkit-ethernet-cloud.yaml') != ''
+    if: needs.detect-changes.outputs.v3_build == 'true' && needs.detect-changes.outputs.v3_ethernet_cloud_exists == 'true'
     uses: ./.github/workflows/esphome-build.yml
     with:
       files: waterp1meterkit-v3/waterp1meterkit-ethernet-cloud.yaml
