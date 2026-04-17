@@ -3,7 +3,7 @@
 # For cloud-enabled version, use waterp1meterkit-ethernet-cloud.yaml
 
 substitutions:
-  default_network: "Ethernet"
+  default_network: "Ethernet (local)"
 
 packages:
   base: !include base.yaml

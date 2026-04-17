@@ -3,7 +3,7 @@
 # For cloud-enabled version, use waterp1meterkit-wifi-cloud.yaml
 
 substitutions:
-  default_network: "WiFi"
+  default_network: "WiFi (local)"
 
 packages:
   base: !include base.yaml

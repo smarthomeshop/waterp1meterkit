@@ -11,7 +11,7 @@ substitutions:
   ethernet_manifest_url: "https://smarthomeshop.github.io/waterp1meterkit/waterp1meterkit-v2-ethernet-manifest.json"
   wifi_cloud_manifest_url: "https://smarthomeshop.github.io/waterp1meterkit/waterp1meterkit-v2-wifi-cloud-manifest.json"
   ethernet_cloud_manifest_url: "https://smarthomeshop.github.io/waterp1meterkit/waterp1meterkit-v2-ethernet-cloud-manifest.json"
-  default_network: "WiFi"
+  default_network: "WiFi (local)"
   # Cloud enabled flag (overridden by cloud.yaml)
   cloud_enabled: "false"
   # Gas meter MBus ID (usually 1, but can be 2, 3, or 4 depending on your meter)
@@ -30,17 +30,17 @@ esphome:
       then:
         - lambda: |-
             std::string option = id(firmware_selector).current_option();
-            if (option == "Ethernet") {
-              ESP_LOGI("main", "OTA updates set to use Ethernet firmware");
+            if (option == "Ethernet" || option == "Ethernet (local)") {
+              ESP_LOGI("main", "OTA updates set to use Ethernet (local) firmware");
               id(firmware_update).set_source_url("${ethernet_manifest_url}");
-            } else if (option == "WiFi Cloud") {
-              ESP_LOGI("main", "OTA updates set to use WiFi Cloud firmware");
+            } else if (option == "WiFi Cloud" || option == "WiFi + SmartHomeShop App (cloud)") {
+              ESP_LOGI("main", "OTA updates set to use WiFi + SmartHomeShop App (cloud) firmware");
               id(firmware_update).set_source_url("${wifi_cloud_manifest_url}");
-            } else if (option == "Ethernet Cloud") {
-              ESP_LOGI("main", "OTA updates set to use Ethernet Cloud firmware");
+            } else if (option == "Ethernet Cloud" || option == "Ethernet + SmartHomeShop App (cloud)") {
+              ESP_LOGI("main", "OTA updates set to use Ethernet + SmartHomeShop App (cloud) firmware");
               id(firmware_update).set_source_url("${ethernet_cloud_manifest_url}");
             } else {
-              ESP_LOGI("main", "OTA updates set to use WiFi firmware");
+              ESP_LOGI("main", "OTA updates set to use WiFi (local) firmware");
               id(firmware_update).set_source_url("${wifi_manifest_url}");
             }
         - component.update: firmware_update
@@ -133,36 +133,36 @@ update:
 web_server:
   port: 80
 
-# Firmware type selector (WiFi / Ethernet / Cloud variants)
+# Firmware selector for local and SmartHomeShop App (cloud) variants
 select:
   - platform: template
     id: firmware_selector
-    name: "${friendly_name} Firmware Type"
+    name: "${friendly_name} Firmware Variant"
     icon: "mdi:network"
     entity_category: config
     optimistic: true
     restore_value: true
     options:
-      - "WiFi"
-      - "Ethernet"
-      - "WiFi Cloud"
-      - "Ethernet Cloud"
+      - "WiFi (local)"
+      - "Ethernet (local)"
+      - "WiFi + SmartHomeShop App (cloud)"
+      - "Ethernet + SmartHomeShop App (cloud)"
     initial_option: ${default_network}
     on_value:
       then:
         - lambda: |-
             std::string option = id(firmware_selector).current_option();
-            if (option == "Ethernet") {
-              ESP_LOGI("main", "OTA updates set to use Ethernet firmware");
+            if (option == "Ethernet" || option == "Ethernet (local)") {
+              ESP_LOGI("main", "OTA updates set to use Ethernet (local) firmware");
               id(firmware_update).set_source_url("${ethernet_manifest_url}");
-            } else if (option == "WiFi Cloud") {
-              ESP_LOGI("main", "OTA updates set to use WiFi Cloud firmware");
+            } else if (option == "WiFi Cloud" || option == "WiFi + SmartHomeShop App (cloud)") {
+              ESP_LOGI("main", "OTA updates set to use WiFi + SmartHomeShop App (cloud) firmware");
               id(firmware_update).set_source_url("${wifi_cloud_manifest_url}");
-            } else if (option == "Ethernet Cloud") {
-              ESP_LOGI("main", "OTA updates set to use Ethernet Cloud firmware");
+            } else if (option == "Ethernet Cloud" || option == "Ethernet + SmartHomeShop App (cloud)") {
+              ESP_LOGI("main", "OTA updates set to use Ethernet + SmartHomeShop App (cloud) firmware");
               id(firmware_update).set_source_url("${ethernet_cloud_manifest_url}");
             } else {
-              ESP_LOGI("main", "OTA updates set to use WiFi firmware");
+              ESP_LOGI("main", "OTA updates set to use WiFi (local) firmware");
               id(firmware_update).set_source_url("${wifi_manifest_url}");
             }
         - component.update: firmware_update
@@ -397,6 +397,8 @@ sensor:
     name: "Water Current Usage"
     icon: "mdi:water-pump"
     unit_of_measurement: "L/min"
+    device_class: volume_flow_rate
+    state_class: measurement
     internal_filter_mode: PULSE
     internal_filter: 200ms
     timeout: 2min

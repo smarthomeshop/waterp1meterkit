@@ -9,6 +9,8 @@ This changelog starts on 2026-04-14. Earlier firmware versions existed before th
 - Add customer-facing firmware notes here before merging a PR.
 - Water Meter Initial Value is now saved immediately when entered, so a sudden power loss right after manual input no longer resets the stored meter reading.
 - Improved onboarding and adoption defaults for the public WiFi and Ethernet builds so WaterP1MeterKit fits the Made for ESPHome flow better.
+- Renamed the firmware selector labels to clearly distinguish fully local variants from SmartHomeShop App (cloud) variants.
+- Marked the live water flow sensor as a proper volume flow rate measurement so Home Assistant accepts it cleanly in water dashboards.
 
 ## [WaterP1MeterKit V1 1.7] - 2026-04-15
 
