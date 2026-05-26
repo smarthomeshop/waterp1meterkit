@@ -1,0 +1,38 @@
+# yamllint disable
+# Ethernet mixin for WaterP1MeterKit V4 variants
+# Provides W5500 SPI Ethernet connectivity on ESP32-C6 hardware
+
+# Ethernet power switch: GPIO18 controls the switched 3V3 rail.
+# LOW = W5500 powered, HIGH = W5500 off.
+switch:
+  - platform: gpio
+    pin:
+      number: GPIO18
+      inverted: true
+    id: eth_power
+    name: "${friendly_name} Ethernet Power"
+    restore_mode: ALWAYS_ON
+    internal: true
+
+ethernet:
+  type: W5500
+  clk_pin: GPIO23
+  miso_pin: GPIO22
+  mosi_pin: GPIO21
+  cs_pin: GPIO15
+  interrupt_pin: GPIO20
+  reset_pin: GPIO19
+
+text_sensor:
+  # Ethernet info sensors
+  - platform: ethernet_info
+    ip_address:
+      id: ethernet_ip_address
+      name: "${friendly_name} IP Address"
+      icon: "mdi:network-outline"
+
+    mac_address:
+      id: ethernet_mac_address
+      name: "${friendly_name} MAC Address"
+      entity_category: diagnostic
+      icon: "mdi:identifier"

@@ -1,0 +1,14 @@
+# WaterP1MeterKit V4 Ethernet Configuration
+# Local-only version (no cloud functionality)
+# ESP32-C6 with W5500 SPI Ethernet
+
+substitutions:
+  firmware_manifest_url: "https://smarthomeshop.github.io/waterp1meterkit/waterp1meterkit-v4-ethernet-manifest.json"
+
+packages:
+  base: !include base.yaml
+  eth: !include eth.yaml
+
+dashboard_import:
+  package_import_url: github://smarthomeshop/waterp1meterkit/waterp1meterkit-v4/waterp1meterkit-ethernet.yaml@main
+  import_full_config: false

@@ -7,9 +7,9 @@ This changelog starts on 2026-04-14. Earlier firmware versions existed before th
 ## [Unreleased]
 
 - Add customer-facing firmware notes here before merging a PR.
+- Added WaterP1MeterKit V4 WiFi and Ethernet firmware for ESP32-C6 based hardware with updated pin mapping.
 
 ## [WaterP1MeterKit V1 1.9] - 2026-04-17
-
 
 - Water Meter Initial Value is now saved immediately when entered, so a sudden power loss right after manual input no longer resets the stored meter reading.
 - Improved onboarding and adoption defaults for the public WiFi and Ethernet builds so WaterP1MeterKit fits the Made for ESPHome flow better.

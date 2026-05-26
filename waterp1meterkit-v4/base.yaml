@@ -1,0 +1,461 @@
+# WaterP1MeterKit V4 Base Configuration
+# This file contains shared configuration for ESP32-C6 WiFi and Ethernet variants
+
+substitutions:
+  device_name: waterp1meterkit-v4
+  friendly_name: WaterP1MeterKit
+  project_version: "1.5"
+  hardware_version: "V4"
+  # Manifest URLs for OTA firmware updates
+  wifi_manifest_url: "https://smarthomeshop.github.io/waterp1meterkit/waterp1meterkit-v4-wifi-manifest.json"
+  ethernet_manifest_url: "https://smarthomeshop.github.io/waterp1meterkit/waterp1meterkit-v4-ethernet-manifest.json"
+  firmware_manifest_url: "https://smarthomeshop.github.io/waterp1meterkit/waterp1meterkit-v4-wifi-manifest.json"
+  # Gas meter MBus ID (usually 1, but can be 2, 3, or 4 depending on your meter)
+  # Change this value and reflash if your gas meter doesn't show data
+  gas_mbus_id: "2"
+
+esphome:
+  name: ${device_name}
+  friendly_name: ${friendly_name}
+  name_add_mac_suffix: true
+  project:
+    name: "smarthomeshop.waterp1meterkit"
+    version: ${project_version}
+  on_boot:
+    - priority: -100
+      then:
+        - lambda: |-
+            id(water_pulse_offset) = 0.0;
+            id(water_meter_initial).publish_state(id(water_total_persistent));
+        - component.update: sensor_water_meter_total
+  on_shutdown:
+    priority: -100
+    then:
+      - lambda: |-
+          if (!id(sensor_pulse_meter_total).has_state() || isnan(id(sensor_pulse_meter_total).state)) {
+            ESP_LOGW("water", "Skipping shutdown save: water pulse total unavailable");
+            return;
+          }
+
+          float pulses_since_offset = id(sensor_pulse_meter_total).state - id(water_pulse_offset);
+          if (pulses_since_offset > 0) {
+            id(water_total_persistent) += pulses_since_offset;
+            id(water_pulse_offset) = id(sensor_pulse_meter_total).state;
+            ESP_LOGI("water", "Water total saved on shutdown: %.3f m³", id(water_total_persistent));
+          }
+
+preferences:
+  flash_write_interval: 30min
+
+globals:
+  - id: water_total_persistent
+    type: float
+    restore_value: true
+    initial_value: "0.0"
+
+  - id: water_pulse_offset
+    type: float
+    restore_value: false
+    initial_value: "0.0"
+
+interval:
+  - interval: 5min
+    then:
+      - lambda: |-
+          if (!id(sensor_pulse_meter_total).has_state() || isnan(id(sensor_pulse_meter_total).state)) {
+            ESP_LOGV("water", "Skipping periodic save: water pulse total unavailable");
+            return;
+          }
+
+          float pulses_since_offset = id(sensor_pulse_meter_total).state - id(water_pulse_offset);
+
+          if (pulses_since_offset >= 0.05) {
+            id(water_total_persistent) += pulses_since_offset;
+            id(water_pulse_offset) = id(sensor_pulse_meter_total).state;
+            ESP_LOGI("water", "Water total saved to flash: %.3f m³ (+%.3f m³)", id(water_total_persistent), pulses_since_offset);
+          }
+
+esp32:
+  board: esp32-c6-devkitc-1
+  framework:
+    type: esp-idf
+    advanced:
+      enable_ota_rollback: false
+
+# Enable logging
+logger:
+  baud_rate: 115200
+
+# Enable Home Assistant API
+api:
+
+# Enable Over the Air updates
+ota:
+  - platform: esphome
+    id: ota_esphome
+  - platform: http_request
+    id: ota_http_request
+
+# HTTP Request for OTA updates
+http_request:
+  useragent: waterp1meterkit-esphome
+  verify_ssl: false
+
+# Firmware update component (for Home Assistant update entity)
+update:
+  - platform: http_request
+    name: "${friendly_name} Firmware"
+    id: firmware_update
+    source: ${firmware_manifest_url}
+
+web_server:
+  port: 80
+
+# Switch to restart the waterp1meter
+switch:
+  - platform: restart
+    id: switch_restart
+    name: "${friendly_name} Restart"
+
+# Buttons
+button:
+  - platform: factory_reset
+    id: factory_reset_button
+    name: "${friendly_name} Factory Reset"
+    entity_category: config
+    disabled_by_default: true
+
+number:
+  - platform: template
+    id: water_meter_initial
+    name: "Water Meter Initial Value"
+    icon: "mdi:water-plus"
+    unit_of_measurement: "m³"
+    device_class: water
+    entity_category: config
+    optimistic: true
+    min_value: 0
+    max_value: 100000
+    step: 0.001
+    mode: box
+    set_action:
+      then:
+        - lambda: |-
+            id(water_total_persistent) = x;
+            if (id(sensor_pulse_meter_total).has_state() && !isnan(id(sensor_pulse_meter_total).state)) {
+              id(water_pulse_offset) = id(sensor_pulse_meter_total).state;
+            } else {
+              id(water_pulse_offset) = 0.0;
+            }
+            global_preferences->sync();
+            id(sensor_water_meter_total).update();
+            ESP_LOGI("water", "Water meter initial value saved immediately: %.3f m³", x);
+
+# Water Leak Sensor (V4 expansion port)
+binary_sensor:
+  - platform: gpio
+    id: water_leak_sensor
+    name: "Water Leak Sensor"
+    pin:
+      number: GPIO2
+      mode:
+        input: true
+        pullup: true
+      inverted: true
+    device_class: moisture
+    filters:
+      - delayed_on: 100ms
+      - delayed_off: 2s
+
+# I²C Bus
+i2c:
+  id: i2c_bus
+  sda: GPIO6
+  scl: GPIO7
+  scan: true
+  frequency: 400kHz
+
+# LED for measure status
+output:
+  - platform: ledc
+    pin: GPIO12
+    id: output_led_green
+  - platform: ledc
+    pin: GPIO13
+    id: output_led_red
+  - platform: ledc
+    pin: GPIO11
+    id: output_led_blue
+
+light:
+  - platform: monochromatic
+    id: light_led_green
+    output: output_led_green
+  - platform: status_led
+    id: light_led_red
+    output: output_led_red
+  - platform: monochromatic
+    id: light_led_blue
+    output: output_led_blue
+
+# DSMR part
+uart:
+  id: uart_dsmr
+  rx_pin:
+    number: GPIO1
+    inverted: true
+  baud_rate: 115200
+  rx_buffer_size: 1700
+
+dsmr:
+  uart_id: uart_dsmr
+  id: dsmr_instance
+  max_telegram_length: 1700
+  request_pin: GPIO10
+  gas_mbus_id: ${gas_mbus_id}
+
+sensor:
+  # DSMR part
+  - platform: dsmr
+    energy_delivered_tariff1:
+      id: dsmr_electricity_delivered_1
+      name: "Energy Consumed Tariff 1"
+      state_class: total_increasing
+    energy_returned_tariff1:
+      id: dsmr_electricity_returned_1
+      name: "Energy Produced Tariff 1"
+      state_class: total_increasing
+    energy_delivered_tariff2:
+      id: dsmr_electricity_delivered_2
+      name: "Energy Consumed Tariff 2"
+      state_class: total_increasing
+    energy_returned_tariff2:
+      id: dsmr_electricity_returned_2
+      name: "Energy Produced Tariff 2"
+      state_class: total_increasing
+    power_delivered:
+      accuracy_decimals: 3
+      id: dsmr_electricity_currently_delivered
+      name: "Power Consumed"
+    power_returned:
+      accuracy_decimals: 3
+      id: dsmr_electricity_currently_returned
+      name: "Power Produced"
+    voltage_l1:
+      id: dsmr_phase_voltage_l1
+      name: "Voltage Phase 1"
+    voltage_l2:
+      id: dsmr_phase_voltage_l2
+      name: "Voltage Phase 2"
+    voltage_l3:
+      id: dsmr_phase_voltage_l3
+      name: "Voltage Phase 3"
+    current_l1:
+      id: dsmr_phase_power_current_l1
+      name: "Current Phase 1"
+    current_l2:
+      id: dsmr_phase_power_current_l2
+      name: "Current Phase 2"
+    current_l3:
+      id: dsmr_phase_power_current_l3
+      name: "Current Phase 3"
+    power_delivered_l1:
+      accuracy_decimals: 3
+      id: dsmr_phase_currently_delivered_l1
+      name: "Power Consumed Phase 1"
+    power_delivered_l2:
+      accuracy_decimals: 3
+      id: dsmr_phase_currently_delivered_l2
+      name: "Power Consumed Phase 2"
+    power_delivered_l3:
+      accuracy_decimals: 3
+      id: dsmr_phase_currently_delivered_l3
+      name: "Power Consumed Phase 3"
+    power_returned_l1:
+      accuracy_decimals: 3
+      id: dsmr_phase_currently_returned_l1
+      name: "Power Produced Phase 1"
+    power_returned_l2:
+      accuracy_decimals: 3
+      id: dsmr_phase_currently_returned_l2
+      name: "Power Produced Phase 2"
+    power_returned_l3:
+      accuracy_decimals: 3
+      id: dsmr_phase_currently_returned_l3
+      name: "Power Produced Phase 3"
+    gas_delivered:
+      id: dsmr_extra_device_delivered
+      name: "Gas Consumed"
+      state_class: total_increasing
+
+    # Electricity quality sensors
+    electricity_failures:
+      id: dsmr_electricity_failures
+      name: "Electricity Failures"
+      icon: "mdi:flash-alert"
+    electricity_long_failures:
+      id: dsmr_electricity_long_failures
+      name: "Electricity Long Failures"
+      icon: "mdi:flash-alert-outline"
+    electricity_sags_l1:
+      id: dsmr_electricity_sags_l1
+      name: "Voltage Sags Phase 1"
+      icon: "mdi:sine-wave"
+    electricity_sags_l2:
+      id: dsmr_electricity_sags_l2
+      name: "Voltage Sags Phase 2"
+      icon: "mdi:sine-wave"
+    electricity_sags_l3:
+      id: dsmr_electricity_sags_l3
+      name: "Voltage Sags Phase 3"
+      icon: "mdi:sine-wave"
+    electricity_swells_l1:
+      id: dsmr_electricity_swells_l1
+      name: "Voltage Swells Phase 1"
+      icon: "mdi:sine-wave"
+    electricity_swells_l2:
+      id: dsmr_electricity_swells_l2
+      name: "Voltage Swells Phase 2"
+      icon: "mdi:sine-wave"
+    electricity_swells_l3:
+      id: dsmr_electricity_swells_l3
+      name: "Voltage Swells Phase 3"
+      icon: "mdi:sine-wave"
+
+    # Belgium specific sensors (disabled by default, enable in HA if needed)
+    gas_delivered_be:
+      id: dsmr_gas_delivered_be
+      name: "Gas Consumed Belgium"
+      state_class: total_increasing
+      disabled_by_default: true
+    active_energy_import_current_average_demand:
+      id: dsmr_active_energy_import_current_average_demand
+      name: "Current Average Demand"
+      disabled_by_default: true
+    active_energy_import_maximum_demand_running_month:
+      id: dsmr_active_energy_import_maximum_demand_running_month
+      name: "Maximum Demand Current Month"
+      disabled_by_default: true
+    active_energy_import_maximum_demand_last_13_months:
+      id: dsmr_active_energy_import_maximum_demand_last_13_months
+      name: "Maximum Demand Last 13 Months"
+      disabled_by_default: true
+
+    # Luxembourg specific sensors (disabled by default, enable in HA if needed)
+    energy_delivered_lux:
+      id: dsmr_energy_delivered_lux
+      name: "Energy Consumed Luxembourg"
+      state_class: total_increasing
+      disabled_by_default: true
+    energy_returned_lux:
+      id: dsmr_energy_returned_lux
+      name: "Energy Produced Luxembourg"
+      state_class: total_increasing
+      disabled_by_default: true
+
+  # WaterMeter sensor part
+  # IMPORTANT: Do NOT change id or name - used by Energy Dashboard!
+  - platform: pulse_meter
+    id: sensor_pulse_meter
+    name: "Water Current Usage"
+    icon: "mdi:water-pump"
+    unit_of_measurement: "L/min"
+    device_class: volume_flow_rate
+    state_class: measurement
+    internal_filter_mode: PULSE
+    internal_filter: 200ms
+    timeout: 2min
+    accuracy_decimals: 1
+    total:
+      id: sensor_pulse_meter_total
+      name: "Water Total Consumption"
+      icon: "mdi:cube-outline"
+      unit_of_measurement: "m³"
+      state_class: total_increasing
+      device_class: water
+      accuracy_decimals: 3
+      filters:
+        - multiply: 0.001
+    pin: GPIO0
+    on_value:
+      then:
+        - light.turn_on:
+            id: light_led_green
+            flash_length: 1s
+        - component.update: sensor_water_meter_total
+
+  - platform: template
+    id: sensor_water_meter_total
+    name: "Water Meter Total"
+    icon: "mdi:water-check"
+    unit_of_measurement: "m³"
+    state_class: total_increasing
+    device_class: water
+    accuracy_decimals: 3
+    lambda: |-
+      if (!id(sensor_pulse_meter_total).has_state() || isnan(id(sensor_pulse_meter_total).state)) {
+        return id(water_total_persistent);
+      }
+
+      float current_delta = id(sensor_pulse_meter_total).state - id(water_pulse_offset);
+      if (current_delta < 0.0) {
+        current_delta = 0.0;
+      }
+
+      return id(water_total_persistent) + current_delta;
+    update_interval: 60s
+
+  # HDC1080 temp & hum sensor
+  - platform: hdc1080
+    temperature:
+      id: sensor_temperature
+      name: "Temperature"
+      filters:
+        offset: -4.5
+    humidity:
+      id: sensor_humidity
+      name: "Humidity"
+      filters:
+        offset: 12
+    update_interval: 60s
+
+text_sensor:
+  - platform: version
+    id: text_sensor_version
+    name: "ESPHome Version"
+  - platform: template
+    id: text_sensor_waterp1meterkit_software_version
+    name: "Software Version"
+    update_interval: 5h
+    lambda: |-
+      return {"${project_version}"};
+  - platform: template
+    id: text_sensor_waterp1meterkit_hardware_version
+    name: "Hardware Version"
+    update_interval: 5h
+    lambda: |-
+      return {"${hardware_version}"};
+  - platform: dsmr
+    identification:
+      id: dsmr_identification
+      name: "Identification"
+    p1_version:
+      id: dsmr_p1_version
+      name: "Version"
+    electricity_tariff:
+      id: dsmr_electricity_tariff
+      name: "Electricity Tariff"
+      icon: "mdi:cash-multiple"
+    gas_equipment_id:
+      id: dsmr_gas_equipment_id
+      name: "Gas Equipment ID"
+      icon: "mdi:fire"
+      disabled_by_default: true
+    timestamp:
+      id: dsmr_timestamp
+      internal: true
+    # Belgium specific (disabled by default)
+    p1_version_be:
+      id: dsmr_p1_version_be
+      name: "Version Belgium"
+      disabled_by_default: true

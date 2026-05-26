@@ -1,0 +1,10 @@
+# WaterP1MeterKit V4 WiFi Configuration
+# Local-only version (no cloud functionality)
+
+packages:
+  base: !include base.yaml
+  wifi: !include wifi.yaml
+
+dashboard_import:
+  package_import_url: github://smarthomeshop/waterp1meterkit/waterp1meterkit-v4/waterp1meterkit-wifi.yaml@main
+  import_full_config: false

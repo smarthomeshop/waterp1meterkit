@@ -15,20 +15,21 @@ The WaterP1MeterKit reads DSMR telegrams from the P1 port of your smart meter an
 - Combined P1 energy and water monitoring in one device
 - Support for energy, gas, and water usage tracking
 - Temperature and humidity monitoring with HDC1080
-- WiFi and Ethernet firmware variants for all hardware revisions
+- WiFi firmware for all hardware revisions, with Ethernet variants where supported
 - PoE support on V2 and V3
 - Fully local operation with ESPHome and Home Assistant
-- V3 expansion support for add-ons such as a water leak sensor or door sensor
+- V3 and V4 expansion support for add-ons such as a water leak sensor or door sensor
 
 ## Hardware Versions
 
-We publish firmware for three hardware revisions.
+We publish firmware for four hardware revisions.
 
 | Version | Chip | Connectivity | Description |
 |---------|------|--------------|-------------|
 | V1 | ESP32 | WiFi and Ethernet | Original combined P1 and water monitor with fixed water sensor |
 | V2 | ESP32 | WiFi, Ethernet, and PoE | Updated hardware with PoE support |
 | V3 | ESP32 | WiFi, Ethernet, and PoE | Detachable water sensor, expansion support, and improved precision |
+| V4 | ESP32-C6 | WiFi and Ethernet | ESP32-C6 based revision with W5500 Ethernet, updated pin mapping, and ESP-IDF firmware |
 
 See the README in each version folder for hardware-specific details.
 
@@ -44,6 +45,8 @@ We publish customer-facing WiFi and Ethernet firmware for each hardware revision
 | V2 (ESP32) | Ethernet | Wired Ethernet firmware for PoE-capable V2 hardware |
 | V3 (ESP32) | WiFi | WiFi firmware for detachable-sensor V3 hardware |
 | V3 (ESP32) | Ethernet | Wired Ethernet firmware for detachable-sensor V3 hardware |
+| V4 (ESP32-C6) | WiFi | WiFi firmware for ESP32-C6 based V4 hardware |
+| V4 (ESP32-C6) | Ethernet | W5500 SPI Ethernet firmware for ESP32-C6 based V4 hardware |
 
 ## Water Meter Total
 
@@ -84,9 +87,33 @@ The device batches writes to reduce flash wear while keeping the reading reliabl
 1. Connect power with USB-C, or use PoE on V2 and V3 where applicable.
 2. Devices ship pre-flashed with WiFi firmware by default.
 3. Complete onboarding through captive portal in the WiFi build.
-4. If you want Ethernet, switch firmware later from Home Assistant.
+4. Switch to Ethernet firmware later from Home Assistant if needed.
 
 Quick start guide: https://smarthomeshop.io/quick-start-waterp1meterkit
+
+## Optional DSMR Reader Forwarding
+
+Advanced users can forward the raw P1 telegram to a local DSMR Reader instance by adopting the device in ESPHome and adding the optional package in `packages/dsmr-reader.yaml`.
+
+```yaml
+substitutions:
+  dsmr_reader_host: "http://192.168.1.10:7777"
+  dsmr_reader_api_key: !secret dsmr_reader_api_key
+
+packages:
+  smarthomeshop.waterp1meterkit:
+    github://smarthomeshop/waterp1meterkit/waterp1meterkit-v3/waterp1meterkit-wifi.yaml@main
+  smarthomeshop.dsmr_reader:
+    github://smarthomeshop/waterp1meterkit/packages/dsmr-reader.yaml@main
+```
+
+Add the token to `secrets.yaml`:
+
+```yaml
+dsmr_reader_api_key: "your_dsmr_reader_api_token"
+```
+
+Use the matching `waterp1meterkit-v1`, `waterp1meterkit-v2`, `waterp1meterkit-v3`, or `waterp1meterkit-v4` package for your hardware and choose WiFi or Ethernet as needed. The DSMR Reader token is compiled into the ESPHome firmware, so keep custom YAML and secrets private.
 
 ## Version History
 
@@ -109,6 +136,12 @@ waterp1meterkit/
 │   ├── base.yaml
 │   ├── waterp1meterkit-wifi.yaml
 │   └── waterp1meterkit-ethernet.yaml
+├── waterp1meterkit-v4/     # V4 ESPHome configurations
+│   ├── base.yaml
+│   ├── waterp1meterkit-wifi.yaml
+│   └── waterp1meterkit-ethernet.yaml
+├── packages/               # Optional add-on packages
+│   └── dsmr-reader.yaml
 ├── .github/workflows/      # Build and release automation
 ├── CHANGELOG.md            # Customer-facing firmware notes
 └── images/
@@ -124,6 +157,8 @@ Pre-built firmware manifests are published on the `gh-pages` branch.
 - V2 Ethernet: `waterp1meterkit-v2-ethernet-manifest.json`
 - V3 WiFi: `waterp1meterkit-v3-wifi-manifest.json`
 - V3 Ethernet: `waterp1meterkit-v3-ethernet-manifest.json`
+- V4 WiFi: `waterp1meterkit-v4-wifi-manifest.json`
+- V4 Ethernet: `waterp1meterkit-v4-ethernet-manifest.json`
 
 ## Contributing
 

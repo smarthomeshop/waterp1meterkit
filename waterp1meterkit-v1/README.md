@@ -56,7 +56,7 @@ For detailed instructions: https://smarthomeshop.io/quick-start-waterp1meterkit
 
 - The water sensor is fixed and not detachable
 - No PoE support - use USB-C for power
-- Consider upgrading to V2 (adds PoE) or V3 (adds detachable sensor + expansion port)
+- Consider upgrading to V2 (adds PoE), V3 (adds detachable sensor + expansion port), or V4 (ESP32-C6 with W5500 Ethernet)
 
 ## More Information
 

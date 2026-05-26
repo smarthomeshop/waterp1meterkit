@@ -8,3 +8,7 @@ CLOUD-INTEGRATION-GUIDE.md
 waterp1meterkit-v*/cloud.yaml
 waterp1meterkit-v*/waterp1meterkit-wifi-cloud.yaml
 waterp1meterkit-v*/waterp1meterkit-ethernet-cloud.yaml
+
+# ESPHome local build artifacts and secrets
+**/.esphome/
+**/secrets.yaml

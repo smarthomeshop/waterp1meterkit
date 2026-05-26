@@ -80,14 +80,15 @@ For detailed instructions: https://smarthomeshop.io/quick-start-waterp1meterkit
 
 ## Version Comparison
 
-| Feature | V1 | V2 | V3 |
-|---------|----|----|-----|
-| WiFi | ✅ | ✅ | ✅ |
-| Ethernet | ✅ | ✅ | ✅ |
-| PoE | ❌ | ✅ | ✅ |
-| Detachable Water Sensor | ❌ | ❌ | ✅ |
-| Expansion Port | ❌ | ❌ | ✅ |
-| Improved Precision | - | - | ✅ |
+| Feature | V1 | V2 | V3 | V4 |
+|---------|----|----|----|----|
+| MCU | ESP32 | ESP32 | ESP32 | ESP32-C6 |
+| WiFi | ✅ | ✅ | ✅ | ✅ |
+| Ethernet | ✅ | ✅ | ✅ | ✅ |
+| PoE | ❌ | ✅ | ✅ | ❌ |
+| Detachable Water Sensor | ❌ | ❌ | ✅ | ✅ |
+| Expansion Port | ❌ | ❌ | ✅ | ✅ |
+| Improved Precision | - | - | ✅ | ✅ |
 
 ## More Information
 

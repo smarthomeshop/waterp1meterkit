@@ -23,6 +23,7 @@ on:
       - 'waterp1meterkit-v1/**'
       - 'waterp1meterkit-v2/**'
       - 'waterp1meterkit-v3/**'
+      - 'waterp1meterkit-v4/**'
 
 permissions:
   contents: write
@@ -68,7 +69,7 @@ jobs:
           echo "Changed files:"
           echo "$CHANGED_FILES"
 
-          if ! echo "$CHANGED_FILES" | grep -Eq '^waterp1meterkit-v1/.*\.ya?ml$|^waterp1meterkit-v2/.*\.ya?ml$|^waterp1meterkit-v3/.*\.ya?ml$'; then
+          if ! echo "$CHANGED_FILES" | grep -Eq '^waterp1meterkit-v1/.*\.ya?ml$|^waterp1meterkit-v2/.*\.ya?ml$|^waterp1meterkit-v3/.*\.ya?ml$|^waterp1meterkit-v4/.*\.ya?ml$'; then
             echo "No firmware YAML changes detected; changelog update not required"
             exit 0
           fi
@@ -92,14 +93,17 @@ jobs:
       v1_changed: ${{ steps.changes.outputs.v1 }}
       v2_changed: ${{ steps.changes.outputs.v2 }}
       v3_changed: ${{ steps.changes.outputs.v3 }}
+      v4_changed: ${{ steps.changes.outputs.v4 }}
       v1_build: ${{ steps.changes.outputs.v1_build }}
       v2_build: ${{ steps.changes.outputs.v2_build }}
       v3_build: ${{ steps.changes.outputs.v3_build }}
+      v4_build: ${{ steps.changes.outputs.v4_build }}
       v3_wifi_cloud_exists: ${{ steps.variant-files.outputs.v3_wifi_cloud_exists }}
       v3_ethernet_cloud_exists: ${{ steps.variant-files.outputs.v3_ethernet_cloud_exists }}
       v1_version: ${{ steps.versions.outputs.v1_version }}
       v2_version: ${{ steps.versions.outputs.v2_version }}
       v3_version: ${{ steps.versions.outputs.v3_version }}
+      v4_version: ${{ steps.versions.outputs.v4_version }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -116,9 +120,11 @@ jobs:
             echo "v1=true" >> $GITHUB_OUTPUT
             echo "v2=true" >> $GITHUB_OUTPUT
             echo "v3=true" >> $GITHUB_OUTPUT
+            echo "v4=true" >> $GITHUB_OUTPUT
             echo "v1_build=true" >> $GITHUB_OUTPUT
             echo "v2_build=true" >> $GITHUB_OUTPUT
             echo "v3_build=true" >> $GITHUB_OUTPUT
+            echo "v4_build=true" >> $GITHUB_OUTPUT
             exit 0
           fi
 
@@ -128,9 +134,11 @@ jobs:
             echo "v1=true" >> $GITHUB_OUTPUT
             echo "v2=true" >> $GITHUB_OUTPUT
             echo "v3=true" >> $GITHUB_OUTPUT
+            echo "v4=true" >> $GITHUB_OUTPUT
             echo "v1_build=true" >> $GITHUB_OUTPUT
             echo "v2_build=true" >> $GITHUB_OUTPUT
             echo "v3_build=true" >> $GITHUB_OUTPUT
+            echo "v4_build=true" >> $GITHUB_OUTPUT
             exit 0
           fi
 
@@ -140,9 +148,11 @@ jobs:
             echo "v1=true" >> $GITHUB_OUTPUT
             echo "v2=true" >> $GITHUB_OUTPUT
             echo "v3=true" >> $GITHUB_OUTPUT
+            echo "v4=true" >> $GITHUB_OUTPUT
             echo "v1_build=true" >> $GITHUB_OUTPUT
             echo "v2_build=true" >> $GITHUB_OUTPUT
             echo "v3_build=true" >> $GITHUB_OUTPUT
+            echo "v4_build=true" >> $GITHUB_OUTPUT
             exit 0
           fi
 
@@ -162,9 +172,11 @@ jobs:
             echo "v1=true" >> $GITHUB_OUTPUT
             echo "v2=true" >> $GITHUB_OUTPUT
             echo "v3=true" >> $GITHUB_OUTPUT
+            echo "v4=true" >> $GITHUB_OUTPUT
             echo "v1_build=true" >> $GITHUB_OUTPUT
             echo "v2_build=true" >> $GITHUB_OUTPUT
             echo "v3_build=true" >> $GITHUB_OUTPUT
+            echo "v4_build=true" >> $GITHUB_OUTPUT
             exit 0
           fi
 
@@ -176,29 +188,35 @@ jobs:
           V1_CHANGED=$(echo "$CHANGED_FILES" | grep -Eq "^waterp1meterkit-v1/.*\.ya?ml$" && echo "true" || echo "false")
           V2_CHANGED=$(echo "$CHANGED_FILES" | grep -Eq "^waterp1meterkit-v2/.*\.ya?ml$" && echo "true" || echo "false")
           V3_CHANGED=$(echo "$CHANGED_FILES" | grep -Eq "^waterp1meterkit-v3/.*\.ya?ml$" && echo "true" || echo "false")
+          V4_CHANGED=$(echo "$CHANGED_FILES" | grep -Eq "^waterp1meterkit-v4/.*\.ya?ml$" && echo "true" || echo "false")
 
           if echo "$CHANGED_FILES" | grep -q "^.github/workflows/" && \
-             [[ "$V1_CHANGED" == "false" && "$V2_CHANGED" == "false" && "$V3_CHANGED" == "false" ]]; then
+             [[ "$V1_CHANGED" == "false" && "$V2_CHANGED" == "false" && "$V3_CHANGED" == "false" && "$V4_CHANGED" == "false" ]]; then
             echo "Workflow-only changes detected, rebuilding all versions without creating new firmware versions"
             echo "v1=false" >> $GITHUB_OUTPUT
             echo "v2=false" >> $GITHUB_OUTPUT
             echo "v3=false" >> $GITHUB_OUTPUT
+            echo "v4=false" >> $GITHUB_OUTPUT
             echo "v1_build=true" >> $GITHUB_OUTPUT
             echo "v2_build=true" >> $GITHUB_OUTPUT
             echo "v3_build=true" >> $GITHUB_OUTPUT
+            echo "v4_build=true" >> $GITHUB_OUTPUT
             exit 0
           fi
 
           echo "v1=$V1_CHANGED" >> $GITHUB_OUTPUT
           echo "v2=$V2_CHANGED" >> $GITHUB_OUTPUT
           echo "v3=$V3_CHANGED" >> $GITHUB_OUTPUT
+          echo "v4=$V4_CHANGED" >> $GITHUB_OUTPUT
           echo "v1_build=$V1_CHANGED" >> $GITHUB_OUTPUT
           echo "v2_build=$V2_CHANGED" >> $GITHUB_OUTPUT
           echo "v3_build=$V3_CHANGED" >> $GITHUB_OUTPUT
+          echo "v4_build=$V4_CHANGED" >> $GITHUB_OUTPUT
 
           echo "V1 changed: $V1_CHANGED"
           echo "V2 changed: $V2_CHANGED"
           echo "V3 changed: $V3_CHANGED"
+          echo "V4 changed: $V4_CHANGED"
 
       - name: Detect optional variant files
         id: variant-files
@@ -291,6 +309,13 @@ jobs:
             echo "v3_version=$V3_CURRENT" >> $GITHUB_OUTPUT
           fi
 
+          if [[ "${{ steps.changes.outputs.v4 }}" == "true" ]]; then
+            update_version "waterp1meterkit-v4/base.yaml" "v4_version"
+          else
+            V4_CURRENT=$(grep "project_version:" "waterp1meterkit-v4/base.yaml" 2>/dev/null | head -1 | sed 's/.*: *"\([^"]*\)".*/\1/' || echo "1.0")
+            echo "v4_version=$V4_CURRENT" >> $GITHUB_OUTPUT
+          fi
+
       - name: Commit version updates and create tags
         # Don't update versions on scheduled builds (just rebuild with latest ESPHome)
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -338,6 +363,14 @@ jobs:
             if [[ "${{ steps.changes.outputs.v3 }}" == "true" ]]; then
               {
                 printf '## [WaterP1MeterKit V3 %s] - %s\n\n' "${{ steps.versions.outputs.v3_version }}" "$release_date"
+                cat "$unreleased_notes"
+                printf '\n'
+              } >> "$release_blocks"
+            fi
+
+            if [[ "${{ steps.changes.outputs.v4 }}" == "true" ]]; then
+              {
+                printf '## [WaterP1MeterKit V4 %s] - %s\n\n' "${{ steps.versions.outputs.v4_version }}" "$release_date"
                 cat "$unreleased_notes"
                 printf '\n'
               } >> "$release_blocks"
@@ -403,6 +436,12 @@ jobs:
             CHANGES_MADE=true
           fi
 
+          # Update V4 if changed
+          if [[ "${{ steps.changes.outputs.v4 }}" == "true" ]]; then
+            sed -i "s/^\s*project_version: \".*\"/  project_version: \"${{ steps.versions.outputs.v4_version }}\"/" waterp1meterkit-v4/base.yaml
+            CHANGES_MADE=true
+          fi
+
           if [[ "$CHANGES_MADE" == "true" ]]; then
             finalize_changelog
           fi
@@ -417,6 +456,7 @@ jobs:
             [[ "${{ steps.changes.outputs.v1 }}" == "true" ]] && MSG="$MSG V1=${{ steps.versions.outputs.v1_version }}"
             [[ "${{ steps.changes.outputs.v2 }}" == "true" ]] && MSG="$MSG V2=${{ steps.versions.outputs.v2_version }}"
             [[ "${{ steps.changes.outputs.v3 }}" == "true" ]] && MSG="$MSG V3=${{ steps.versions.outputs.v3_version }}"
+            [[ "${{ steps.changes.outputs.v4 }}" == "true" ]] && MSG="$MSG V4=${{ steps.versions.outputs.v4_version }}"
             MSG="$MSG [skip ci]"
             
             git commit -m "$MSG" || exit 0
@@ -432,6 +472,10 @@ jobs:
 
             if [[ "${{ steps.changes.outputs.v3 }}" == "true" && ! "${{ steps.versions.outputs.v3_version }}" =~ ^dev- ]]; then
               create_tag "waterp1meterkit-v3-${{ steps.versions.outputs.v3_version }}"
+            fi
+
+            if [[ "${{ steps.changes.outputs.v4 }}" == "true" && ! "${{ steps.versions.outputs.v4_version }}" =~ ^dev- ]]; then
+              create_tag "waterp1meterkit-v4-${{ steps.versions.outputs.v4_version }}"
             fi
           fi
 
@@ -564,6 +608,39 @@ jobs:
       project_version: ${{ needs.detect-changes.outputs.v3_version }}
       base_path: waterp1meterkit-v3
 
+  # ============================================
+  # WaterP1MeterKit V4 Variants
+  # ============================================
+  publish-v4-wifi:
+    name: Publish WaterP1MeterKit V4 WiFi
+    needs: [detect-changes]
+    if: needs.detect-changes.outputs.v4_build == 'true'
+    uses: ./.github/workflows/esphome-build.yml
+    with:
+      files: waterp1meterkit-v4/waterp1meterkit-wifi.yaml
+      name: WaterP1MeterKit V4 WiFi
+      manifest_filename: waterp1meterkit-v4-wifi-manifest.json
+      clean: false
+      esphome_version: latest
+      directory_name: waterp1meterkit-v4-wifi
+      project_version: ${{ needs.detect-changes.outputs.v4_version }}
+      base_path: waterp1meterkit-v4
+
+  publish-v4-ethernet:
+    name: Publish WaterP1MeterKit V4 Ethernet
+    needs: [detect-changes]
+    if: needs.detect-changes.outputs.v4_build == 'true'
+    uses: ./.github/workflows/esphome-build.yml
+    with:
+      files: waterp1meterkit-v4/waterp1meterkit-ethernet.yaml
+      name: WaterP1MeterKit V4 Ethernet
+      manifest_filename: waterp1meterkit-v4-ethernet-manifest.json
+      clean: false
+      esphome_version: latest
+      directory_name: waterp1meterkit-v4-ethernet
+      project_version: ${{ needs.detect-changes.outputs.v4_version }}
+      base_path: waterp1meterkit-v4
+
   create-releases:
     name: Create GitHub releases
     needs: [detect-changes]
@@ -630,4 +707,8 @@ jobs:
 
           if [[ "${{ needs.detect-changes.outputs.v3_changed }}" == "true" && ! "${{ needs.detect-changes.outputs.v3_version }}" =~ ^dev- ]]; then
             create_release "waterp1meterkit-v3-${{ needs.detect-changes.outputs.v3_version }}" "WaterP1MeterKit V3 ${{ needs.detect-changes.outputs.v3_version }}"
+          fi
+
+          if [[ "${{ needs.detect-changes.outputs.v4_changed }}" == "true" && ! "${{ needs.detect-changes.outputs.v4_version }}" =~ ^dev- ]]; then
+            create_release "waterp1meterkit-v4-${{ needs.detect-changes.outputs.v4_version }}" "WaterP1MeterKit V4 ${{ needs.detect-changes.outputs.v4_version }}"
           fi
