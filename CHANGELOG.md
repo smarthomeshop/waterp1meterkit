@@ -7,7 +7,12 @@ This changelog starts on 2026-04-14. Earlier firmware versions existed before th
 ## [Unreleased]
 
 - Add customer-facing firmware notes here before merging a PR.
+
+## [WaterP1MeterKit V4 1.6] - 2026-05-26
+
+
 - Added WaterP1MeterKit V4 WiFi and Ethernet firmware for ESP32-C6 based hardware with updated pin mapping.
+
 
 ## [WaterP1MeterKit V1 1.9] - 2026-04-17
 
