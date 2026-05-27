@@ -77,14 +77,17 @@ interval:
 
 esp32:
   board: esp32-c6-devkitc-1
+  variant: esp32c6
   framework:
     type: esp-idf
     advanced:
       enable_ota_rollback: false
+  flash_size: 4MB
 
 # Enable logging
 logger:
   baud_rate: 115200
+  hardware_uart: UART0  # Via USB-UART bridge on TXD0/RXD0 (GPIO16/GPIO17)
 
 # Enable Home Assistant API
 api:
