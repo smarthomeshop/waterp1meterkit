@@ -87,7 +87,7 @@ esp32:
 # Enable logging
 logger:
   baud_rate: 115200
-  hardware_uart: UART0  # Via USB-UART bridge on TXD0/RXD0 (GPIO16/GPIO17)
+  hardware_uart: UART0  # Via UART0 USB-UART bridge (GPIO16 TX, GPIO17 RX)
 
 # Enable Home Assistant API
 api:

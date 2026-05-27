@@ -6,7 +6,7 @@ This changelog starts on 2026-04-14. Earlier firmware versions existed before th
 
 ## [Unreleased]
 
-- Fixed USB/serial provisioning for WaterP1MeterKit V4 by using the ESP32-C6 UART0 USB-UART bridge.
+- Fixed USB/serial provisioning for WaterP1MeterKit V4 by using the ESP32-C6 UART0 USB-UART bridge on GPIO16/GPIO17.
 
 ## [WaterP1MeterKit V4 1.6] - 2026-05-26
 
