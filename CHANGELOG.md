@@ -6,7 +6,13 @@ This changelog starts on 2026-04-14. Earlier firmware versions existed before th
 
 ## [Unreleased]
 
+- Add customer-facing firmware notes here before merging a PR.
+
+## [WaterP1MeterKit V4 1.8] - 2026-05-27
+
+
 - Set WaterP1MeterKit V4 to target the ESP32-C6-WROOM-1-N8 8 MB flash module used in production hardware.
+
 
 ## [WaterP1MeterKit V4 1.7] - 2026-05-27
 
