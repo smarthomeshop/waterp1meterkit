@@ -82,7 +82,7 @@ esp32:
     type: esp-idf
     advanced:
       enable_ota_rollback: false
-  flash_size: 4MB
+  flash_size: 8MB
 
 # Enable logging
 logger:

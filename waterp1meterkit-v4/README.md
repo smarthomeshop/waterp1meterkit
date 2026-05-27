@@ -17,7 +17,8 @@ The WaterP1MeterKit V4 is the ESP32-C6 based hardware revision. It keeps the com
 
 | Component | Specification |
 |-----------|---------------|
-| MCU | ESP32-C6 |
+| MCU | ESP32-C6-WROOM-1-N8 |
+| Flash | 8 MB |
 | Framework | ESP-IDF |
 | P1 Port | DSMR 2.2 - 5.0 compatible |
 | Water Sensor | Pulse input |
@@ -48,6 +49,7 @@ The WaterP1MeterKit V4 is the ESP32-C6 based hardware revision. It keeps the com
 ## What's New in V4
 
 - ESP32-C6 based hardware platform
+- 8 MB flash target for ESP32-C6-WROOM-1-N8 hardware
 - ESP-IDF firmware framework
 - Updated GPIO mapping for P1, water pulse, I2C, and RGB status LEDs
 - WiFi and W5500 Ethernet public firmware variants

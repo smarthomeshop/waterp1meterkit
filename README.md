@@ -29,7 +29,7 @@ We publish firmware for four hardware revisions.
 | V1 | ESP32 | WiFi and Ethernet | Original combined P1 and water monitor with fixed water sensor |
 | V2 | ESP32 | WiFi, Ethernet, and PoE | Updated hardware with PoE support |
 | V3 | ESP32 | WiFi, Ethernet, and PoE | Detachable water sensor, expansion support, and improved precision |
-| V4 | ESP32-C6 | WiFi and Ethernet | ESP32-C6 based revision with W5500 Ethernet, updated pin mapping, and ESP-IDF firmware |
+| V4 | ESP32-C6-WROOM-1-N8 | WiFi and Ethernet | ESP32-C6 based revision with 8 MB flash, W5500 Ethernet, updated pin mapping, and ESP-IDF firmware |
 
 See the README in each version folder for hardware-specific details.
 
