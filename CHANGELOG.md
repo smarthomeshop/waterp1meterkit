@@ -6,8 +6,35 @@ This changelog starts on 2026-04-14. Earlier firmware versions existed before th
 
 ## [Unreleased]
 
+- Add customer-facing firmware notes here before merging a PR.
+
+## [WaterP1MeterKit V1 1.10] - 2026-06-26
+
+
 - Fixed WaterP1MeterKit V4 expansion port leak/door input pin mapping from GPIO2 to GPIO5.
 - Added SmartHomeShop App (cloud) firmware variants where available.
+
+
+## [WaterP1MeterKit V2 1.11] - 2026-06-26
+
+
+- Fixed WaterP1MeterKit V4 expansion port leak/door input pin mapping from GPIO2 to GPIO5.
+- Added SmartHomeShop App (cloud) firmware variants where available.
+
+
+## [WaterP1MeterKit V3 1.10] - 2026-06-26
+
+
+- Fixed WaterP1MeterKit V4 expansion port leak/door input pin mapping from GPIO2 to GPIO5.
+- Added SmartHomeShop App (cloud) firmware variants where available.
+
+
+## [WaterP1MeterKit V4 1.9] - 2026-06-26
+
+
+- Fixed WaterP1MeterKit V4 expansion port leak/door input pin mapping from GPIO2 to GPIO5.
+- Added SmartHomeShop App (cloud) firmware variants where available.
+
 
 ## [WaterP1MeterKit V4 1.8] - 2026-05-27
 
