@@ -15,7 +15,9 @@ ethernet:
   type: LAN8720
   mdc_pin: GPIO23
   mdio_pin: GPIO18
-  clk_mode: GPIO17_OUT
+  clk:
+    mode: CLK_OUT
+    pin: GPIO17
   phy_addr: 1
   power_pin: GPIO16
 
@@ -25,6 +27,5 @@ text_sensor:
       id: ethernet_ip_address
       name: "${friendly_name} IP Address"
       icon: "mdi:network-outline"
-
 
 

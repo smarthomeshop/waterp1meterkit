@@ -7,6 +7,7 @@ This changelog starts on 2026-04-14. Earlier firmware versions existed before th
 ## [Unreleased]
 
 - Add customer-facing firmware notes here before merging a PR.
+- Updated LAN8720 Ethernet clock configuration for ESPHome 2026.7 compatibility.
 
 ## [WaterP1MeterKit V4 1.10] - 2026-06-26
 
