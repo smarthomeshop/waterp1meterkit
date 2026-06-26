@@ -7,7 +7,12 @@ This changelog starts on 2026-04-14. Earlier firmware versions existed before th
 ## [Unreleased]
 
 - Add customer-facing firmware notes here before merging a PR.
+
+## [WaterP1MeterKit V4 1.10] - 2026-06-26
+
+
 - Fixed WaterP1MeterKit V4 default gas MBus ID back to 1.
+
 
 ## [WaterP1MeterKit V1 1.11] - 2026-06-26
 
