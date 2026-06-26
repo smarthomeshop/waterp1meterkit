@@ -6,7 +6,7 @@ This changelog starts on 2026-04-14. Earlier firmware versions existed before th
 
 ## [Unreleased]
 
-- Add customer-facing firmware notes here before merging a PR.
+- Fixed cloud firmware variant selector defaults to match the published SmartHomeShop App option names.
 
 ## [WaterP1MeterKit V1 1.10] - 2026-06-26
 

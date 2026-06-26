@@ -3,7 +3,7 @@
 # User chose cloud firmware = user wants cloud sync
 
 substitutions:
-  default_network: "WiFi Cloud"
+  default_network: "WiFi + SmartHomeShop App (cloud)"
 
 packages:
   base: !include base.yaml
