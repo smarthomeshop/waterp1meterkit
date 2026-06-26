@@ -1,0 +1,13 @@
+{
+  "chipFamily": "ESP32-C6",
+  "ota": {
+    "path": "waterp1meterkit-v4-esp32c6.ota.bin",
+    "md5": "47e7b03ceb98bb3761df97cde51b4e0e"
+  },
+  "parts": [
+    {
+      "path": "waterp1meterkit-v4-esp32c6.factory.bin",
+      "offset": 0
+    }
+  ]
+}
