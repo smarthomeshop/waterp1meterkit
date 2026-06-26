@@ -75,8 +75,25 @@ jobs:
           fi
 
           if echo "$CHANGED_FILES" | grep -qx 'CHANGELOG.md'; then
-            echo "CHANGELOG.md updated"
-            exit 0
+            unreleased_notes=$(mktemp)
+            awk '
+              $0 == "## [Unreleased]" { found=1; next }
+              found && /^## \[/ { exit }
+              found { print }
+            ' CHANGELOG.md \
+              | sed '/^- Add customer-facing firmware notes here before merging a PR\.$/d' \
+              | sed '/^- Add customer-facing changes here before the next release is published\.$/d' \
+              > "$unreleased_notes"
+
+            if grep -q '[^[:space:]]' "$unreleased_notes"; then
+              echo "CHANGELOG.md updated with Unreleased notes"
+              rm -f "$unreleased_notes"
+              exit 0
+            fi
+
+            rm -f "$unreleased_notes"
+            echo "::error file=CHANGELOG.md::Firmware YAML changes require a customer-facing note under ## [Unreleased]."
+            exit 1
           fi
 
           echo "::error file=CHANGELOG.md::Firmware YAML changes require a customer-facing CHANGELOG.md update."
@@ -714,7 +731,7 @@ jobs:
             fi
 
             awk -v heading="$heading" '
-              $0 == heading { found=1; next }
+              index($0, heading) == 1 { found=1; next }
               found && /^## \[/ { exit }
               found { print }
             ' CHANGELOG.md > release-notes.txt
@@ -726,6 +743,9 @@ jobs:
                 found { print }
               ' CHANGELOG.md > release-notes.txt
             fi
+
+            sed -i '/^- Add customer-facing firmware notes here before merging a PR\.$/d' release-notes.txt
+            sed -i '/^- Add customer-facing changes here before the next release is published\.$/d' release-notes.txt
 
             if [[ ! -s release-notes.txt ]]; then
               printf '%s\n\n%s\n' \
