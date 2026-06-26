@@ -2,7 +2,7 @@
   "chipFamily": "ESP32",
   "ota": {
     "path": "waterp1meterkit-esp32.ota.bin",
-    "md5": "3425d7e43dc483e2aaf9e552d325cc1a"
+    "md5": "92614ba13111e4fcb12f1c12434146d9"
   },
   "parts": [
     {
