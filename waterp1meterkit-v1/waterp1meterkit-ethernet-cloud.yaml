@@ -1,0 +1,14 @@
+# WaterP1MeterKit V1 Ethernet Configuration + Cloud
+# Cloud sync is ALWAYS active - device auto-registers on boot
+# User chose cloud firmware = user wants cloud sync
+
+substitutions:
+  default_network: "Ethernet Cloud"
+
+packages:
+  base: !include base.yaml
+  eth: !include eth.yaml
+  cloud: !include cloud.yaml
+
+dashboard_import:
+  package_import_url: github://smarthomeshop/waterp1meterkit/waterp1meterkit-v1/waterp1meterkit-ethernet-cloud.yaml@main

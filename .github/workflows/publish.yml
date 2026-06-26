@@ -100,6 +100,8 @@ jobs:
       v4_build: ${{ steps.changes.outputs.v4_build }}
       v3_wifi_cloud_exists: ${{ steps.variant-files.outputs.v3_wifi_cloud_exists }}
       v3_ethernet_cloud_exists: ${{ steps.variant-files.outputs.v3_ethernet_cloud_exists }}
+      v4_wifi_cloud_exists: ${{ steps.variant-files.outputs.v4_wifi_cloud_exists }}
+      v4_ethernet_cloud_exists: ${{ steps.variant-files.outputs.v4_ethernet_cloud_exists }}
       v1_version: ${{ steps.versions.outputs.v1_version }}
       v2_version: ${{ steps.versions.outputs.v2_version }}
       v3_version: ${{ steps.versions.outputs.v3_version }}
@@ -234,6 +236,18 @@ jobs:
             echo "v3_ethernet_cloud_exists=true" >> $GITHUB_OUTPUT
           else
             echo "v3_ethernet_cloud_exists=false" >> $GITHUB_OUTPUT
+          fi
+
+          if [[ -f "waterp1meterkit-v4/waterp1meterkit-wifi-cloud.yaml" ]]; then
+            echo "v4_wifi_cloud_exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "v4_wifi_cloud_exists=false" >> $GITHUB_OUTPUT
+          fi
+
+          if [[ -f "waterp1meterkit-v4/waterp1meterkit-ethernet-cloud.yaml" ]]; then
+            echo "v4_ethernet_cloud_exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "v4_ethernet_cloud_exists=false" >> $GITHUB_OUTPUT
           fi
 
       - name: Update version numbers for changed versions
@@ -626,6 +640,21 @@ jobs:
       project_version: ${{ needs.detect-changes.outputs.v4_version }}
       base_path: waterp1meterkit-v4
 
+  publish-v4-wifi-cloud:
+    name: Publish WaterP1MeterKit V4 WiFi Cloud
+    needs: [detect-changes]
+    if: needs.detect-changes.outputs.v4_build == 'true' && needs.detect-changes.outputs.v4_wifi_cloud_exists == 'true'
+    uses: ./.github/workflows/esphome-build.yml
+    with:
+      files: waterp1meterkit-v4/waterp1meterkit-wifi-cloud.yaml
+      name: WaterP1MeterKit V4 WiFi Cloud
+      manifest_filename: waterp1meterkit-v4-wifi-cloud-manifest.json
+      clean: false
+      esphome_version: latest
+      directory_name: waterp1meterkit-v4-wifi-cloud
+      project_version: ${{ needs.detect-changes.outputs.v4_version }}
+      base_path: waterp1meterkit-v4
+
   publish-v4-ethernet:
     name: Publish WaterP1MeterKit V4 Ethernet
     needs: [detect-changes]
@@ -638,6 +667,21 @@ jobs:
       clean: false
       esphome_version: latest
       directory_name: waterp1meterkit-v4-ethernet
+      project_version: ${{ needs.detect-changes.outputs.v4_version }}
+      base_path: waterp1meterkit-v4
+
+  publish-v4-ethernet-cloud:
+    name: Publish WaterP1MeterKit V4 Ethernet Cloud
+    needs: [detect-changes]
+    if: needs.detect-changes.outputs.v4_build == 'true' && needs.detect-changes.outputs.v4_ethernet_cloud_exists == 'true'
+    uses: ./.github/workflows/esphome-build.yml
+    with:
+      files: waterp1meterkit-v4/waterp1meterkit-ethernet-cloud.yaml
+      name: WaterP1MeterKit V4 Ethernet Cloud
+      manifest_filename: waterp1meterkit-v4-ethernet-cloud-manifest.json
+      clean: false
+      esphome_version: latest
+      directory_name: waterp1meterkit-v4-ethernet-cloud
       project_version: ${{ needs.detect-changes.outputs.v4_version }}
       base_path: waterp1meterkit-v4
 

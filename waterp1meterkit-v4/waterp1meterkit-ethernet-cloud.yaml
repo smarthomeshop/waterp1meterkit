@@ -1,0 +1,14 @@
+# WaterP1MeterKit V4 Ethernet Cloud Configuration
+# Includes local Home Assistant support plus SmartHomeShop cloud sync over HTTP POST.
+
+substitutions:
+  firmware_manifest_url: "https://smarthomeshop.github.io/waterp1meterkit/waterp1meterkit-v4-ethernet-cloud-manifest.json"
+
+packages:
+  base: !include base.yaml
+  eth: !include eth.yaml
+  cloud: !include cloud.yaml
+
+dashboard_import:
+  package_import_url: github://smarthomeshop/waterp1meterkit/waterp1meterkit-v4/waterp1meterkit-ethernet-cloud.yaml@main
+  import_full_config: false

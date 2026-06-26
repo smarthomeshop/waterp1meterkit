@@ -15,12 +15,12 @@ captive_portal:
 # After successful WiFi setup, opens the welcome page automatically
 esp32_improv:
   authorizer: none
-  next_url: "https://app.smarthomeshop.io/setup/welcome?device={{device_name}}&ip={{ip_address}}&cloud=false&hw=${hardware_version}"
+  next_url: "https://api.smarthomeshop.io/setup/welcome?device={{device_name}}&ip={{ip_address}}&cloud=${cloud_enabled}&hw=${hardware_version}"
 
 # Improv Serial (for WiFi provisioning via USB)
 # After successful WiFi setup via ESP Web Tools, opens the welcome page automatically
 improv_serial:
-  next_url: "https://app.smarthomeshop.io/setup/welcome?device={{device_name}}&ip={{ip_address}}&cloud=false&hw=${hardware_version}"
+  next_url: "https://api.smarthomeshop.io/setup/welcome?device={{device_name}}&ip={{ip_address}}&cloud=${cloud_enabled}&hw=${hardware_version}"
 
 sensor:
   # WiFi signal strength
@@ -47,3 +47,23 @@ text_sensor:
       name: "${friendly_name} MAC Address"
       entity_category: diagnostic
       icon: "mdi:identifier"
+
+  - platform: template
+    id: ethernet_ip_address
+    internal: true
+    lambda: |-
+      if (id(wifi_ip_address).has_state()) {
+        return id(wifi_ip_address).state;
+      }
+      return {};
+    update_interval: 10s
+
+  - platform: template
+    id: ethernet_mac_address
+    internal: true
+    lambda: |-
+      if (id(wifi_mac_address).has_state()) {
+        return id(wifi_mac_address).state;
+      }
+      return {};
+    update_interval: 10s

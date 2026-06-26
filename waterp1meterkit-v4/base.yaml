@@ -10,6 +10,7 @@ substitutions:
   wifi_manifest_url: "https://smarthomeshop.github.io/waterp1meterkit/waterp1meterkit-v4-wifi-manifest.json"
   ethernet_manifest_url: "https://smarthomeshop.github.io/waterp1meterkit/waterp1meterkit-v4-ethernet-manifest.json"
   firmware_manifest_url: "https://smarthomeshop.github.io/waterp1meterkit/waterp1meterkit-v4-wifi-manifest.json"
+  cloud_enabled: "false"
   # Gas meter MBus ID (usually 1, but can be 2, 3, or 4 depending on your meter)
   # Change this value and reflash if your gas meter doesn't show data
   gas_mbus_id: "2"
@@ -160,7 +161,7 @@ binary_sensor:
     id: water_leak_sensor
     name: "Water Leak Sensor"
     pin:
-      number: GPIO2
+      number: GPIO5
       mode:
         input: true
         pullup: true

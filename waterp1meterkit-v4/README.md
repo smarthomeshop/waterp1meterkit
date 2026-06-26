@@ -32,7 +32,7 @@ The WaterP1MeterKit V4 is the ESP32-C6 based hardware revision. It keeps the com
 - **UART RX (P1)**: GPIO1 (inverted)
 - **P1 Request**: GPIO10
 - **Water Pulse**: GPIO0
-- **Expansion Port (Leak/Door)**: GPIO2
+- **Expansion Port (Leak/Door)**: GPIO5
 - **I2C SDA**: GPIO6
 - **I2C SCL**: GPIO7
 - **LED Green**: GPIO12
