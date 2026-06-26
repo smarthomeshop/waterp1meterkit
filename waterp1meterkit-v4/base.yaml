@@ -13,7 +13,7 @@ substitutions:
   cloud_enabled: "false"
   # Gas meter MBus ID (usually 1, but can be 2, 3, or 4 depending on your meter)
   # Change this value and reflash if your gas meter doesn't show data
-  gas_mbus_id: "2"
+  gas_mbus_id: "1"
 
 esphome:
   name: ${device_name}
