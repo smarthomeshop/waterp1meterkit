@@ -8,7 +8,7 @@ Product page: https://waterp1meterkit.nl/en
 
 ## How It Works
 
-The WaterP1MeterKit reads DSMR telegrams from the P1 port of your smart meter and pulse signals from a water meter sensor. That lets you track electricity, gas, and water with one device in Home Assistant.
+The WaterP1MeterKit reads DSMR telegrams from the P1 port of your smart meter and pulse signals from a water meter sensor. That lets you track electricity, gas, and water with one device in Home Assistant. Belgian digital water meters that are exposed through the electricity meter over DSMR/MBus are supported as disabled-by-default DSMR water entities.
 
 ## Key Features
 
@@ -52,6 +52,19 @@ We publish customer-facing WiFi and Ethernet firmware for each hardware revision
 
 WaterP1MeterKit stores an absolute water meter total so the reading survives reboots and firmware updates.
 
+### Water Sources
+
+WaterP1MeterKit supports two different water sources. Use only the one that matches your installation in Home Assistant.
+
+| Source | Entity | Use when |
+|--------|--------|----------|
+| Pulse water sensor | Water Meter Total | You use the WaterP1MeterKit water sensor on an analogue/mechanical water meter |
+| DSMR/MBus water meter | DSMR Water Consumed | Your digital water meter is linked to the electricity meter and appears in the P1 telegram, common in Belgium/Flanders |
+
+The DSMR water entities are disabled by default to avoid duplicate water readings for users who use the included pulse water sensor. Belgian users can enable `DSMR Water Consumed`, `DSMR Water Equipment ID`, `DSMR Water Device Type`, and `DSMR Water Valve Position` in Home Assistant. The default DSMR water MBus ID is `2`; advanced ESPHome users can override `water_mbus_id` when their meter uses a different channel.
+
+Additional DSMR gas MBus diagnostics are also available but disabled by default: `DSMR Gas Device Type`, `DSMR Gas Valve Position`, and `DSMR Gas Equipment ID Belgium`.
+
 ### Sensors
 
 | Sensor | Description |
@@ -59,6 +72,10 @@ WaterP1MeterKit stores an absolute water meter total so the reading survives reb
 | Water Total Consumption | Raw pulses since boot; suitable for Home Assistant Energy Dashboard |
 | Water Meter Initial Value | Input value that matches the physical water meter reading |
 | Water Meter Total | Initial value plus measured usage; represents the actual meter reading |
+| DSMR Water Consumed | Disabled-by-default DSMR/MBus digital water meter reading |
+| DSMR Water Equipment ID | Disabled-by-default DSMR/MBus water meter identifier |
+| DSMR Water Device Type | Disabled-by-default DSMR/MBus water meter device type |
+| DSMR Water Valve Position | Disabled-by-default DSMR/MBus water meter valve position |
 
 ### First-Time Setup
 

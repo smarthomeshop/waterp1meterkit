@@ -17,6 +17,9 @@ substitutions:
   # Gas meter MBus ID (usually 1, but can be 2, 3, or 4 depending on your meter)
   # Change this value and reflash if your gas meter doesn't show data
   gas_mbus_id: "1"
+  # DSMR water meter MBus ID for Belgian digital water meters (usually 2)
+  # Only used when the utility meter exposes a water meter through DSMR/P1
+  water_mbus_id: "2"
 
 esphome:
   name: ${device_name}
@@ -269,6 +272,7 @@ dsmr:
   max_telegram_length: 1700
   request_pin: GPIO12
   gas_mbus_id: ${gas_mbus_id}
+  water_mbus_id: ${water_mbus_id}
 
 sensor:
   # DSMR part
@@ -378,11 +382,36 @@ sensor:
       name: "Voltage Swells Phase 3"
       icon: "mdi:sine-wave"
 
-    # Belgium specific sensors (disabled by default, enable in HA if needed)
+    # Belgium and MBus specific sensors (disabled by default, enable in HA if needed)
+    gas_device_type:
+      id: dsmr_gas_device_type
+      name: "DSMR Gas Device Type"
+      disabled_by_default: true
+    gas_valve_position:
+      id: dsmr_gas_valve_position
+      name: "DSMR Gas Valve Position"
+      disabled_by_default: true
     gas_delivered_be:
       id: dsmr_gas_delivered_be
       name: "Gas Consumed Belgium"
       state_class: total_increasing
+      disabled_by_default: true
+    water_device_type:
+      id: dsmr_water_device_type
+      name: "DSMR Water Device Type"
+      disabled_by_default: true
+    water_valve_position:
+      id: dsmr_water_valve_position
+      name: "DSMR Water Valve Position"
+      disabled_by_default: true
+    water_delivered:
+      id: dsmr_water_delivered
+      name: "DSMR Water Consumed"
+      device_class: water
+      state_class: total_increasing
+      unit_of_measurement: "m³"
+      accuracy_decimals: 3
+      icon: "mdi:water"
       disabled_by_default: true
     active_energy_import_current_average_demand:
       id: dsmr_active_energy_import_current_average_demand
@@ -507,6 +536,11 @@ text_sensor:
       name: "Gas Equipment ID"
       icon: "mdi:fire"
       disabled_by_default: true
+    gas_equipment_id_be:
+      id: dsmr_gas_equipment_id_be
+      name: "DSMR Gas Equipment ID Belgium"
+      icon: "mdi:identifier"
+      disabled_by_default: true
     timestamp:
       id: dsmr_timestamp
       internal: true
@@ -514,4 +548,9 @@ text_sensor:
     p1_version_be:
       id: dsmr_p1_version_be
       name: "Version Belgium"
+      disabled_by_default: true
+    water_equipment_id:
+      id: dsmr_water_equipment_id
+      name: "DSMR Water Equipment ID"
+      icon: "mdi:identifier"
       disabled_by_default: true

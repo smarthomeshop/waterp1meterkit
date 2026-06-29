@@ -7,6 +7,8 @@ This changelog starts on 2026-04-14. Earlier firmware versions existed before th
 ## [Unreleased]
 
 - Add customer-facing firmware notes here before merging a PR.
+- Added disabled-by-default DSMR water meter entities for Belgian digital water meters.
+- Added disabled-by-default DSMR gas MBus diagnostic entities.
 
 ## [WaterP1MeterKit V1 1.12] - 2026-06-26
 
