@@ -1,0 +1,21 @@
+# WaterP1MeterKit V4 Thread Configuration
+# Local / Home Assistant only: connects through your Thread border router,
+# no WiFi and no SmartHomeShop cloud. DSMR telegrams are read every 5
+# seconds to stay friendly to the low-bandwidth Thread mesh.
+# See thread.yaml for details.
+#
+# Before installing: replace the thread_dataset placeholder below with the
+# Active dataset TLVs of your Thread network (Home Assistant -> Settings ->
+# Devices & Services -> Thread -> Configure -> information icon).
+# The first install must be done over USB.
+
+substitutions:
+  thread_dataset: "PASTE_YOUR_THREAD_DATASET_TLVS_HERE"
+
+packages:
+  base: !include base.yaml
+  net: !include thread.yaml
+
+dashboard_import:
+  package_import_url: github://smarthomeshop/waterp1meterkit/waterp1meterkit-v4/waterp1meterkit-thread.yaml@main
+  import_full_config: false

@@ -725,6 +725,9 @@ script:
             if (id(sensor_humidity).has_state() && !isnan(id(sensor_humidity).state)) {
               root["humidity_pct"] = id(sensor_humidity).state;
             }
+            if (id(cpu_temperature).has_state() && !isnan(id(cpu_temperature).state)) {
+              root["cpu_temperature_c"] = id(cpu_temperature).state;
+            }
 
             // === DEVICE INFO ===
             root["firmware_version"] = "${project_version}";
@@ -827,3 +830,9 @@ interval:
   - interval: ${cloud_sync_interval_water}
     then:
       - script.execute: cloud_sync_water
+
+# Cloud-only customers may never connect Home Assistant. Without this the
+# native API reboots the device every 15 minutes ("No clients; rebooting"),
+# so disable the no-client reboot on cloud firmware.
+api:
+  reboot_timeout: 0s

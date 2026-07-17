@@ -143,6 +143,29 @@ update:
 
 web_server:
   port: 80
+  version: 3
+
+# Same contract as the other SmartHomeShop products so the setup portal
+# bridge (github://smarthomeshop/setup-portal) can drive it.
+script:
+  - id: sync_selected_firmware_source
+    then:
+      - lambda: |-
+          std::string option = id(firmware_selector).current_option();
+          if (option == "Ethernet" || option == "Ethernet (local)") {
+            ESP_LOGI("main", "OTA updates set to use Ethernet (local) firmware");
+            id(firmware_update).set_source_url("${ethernet_manifest_url}");
+          } else if (option == "WiFi Cloud" || option == "WiFi + SmartHomeShop App (cloud)") {
+            ESP_LOGI("main", "OTA updates set to use WiFi + SmartHomeShop App (cloud) firmware");
+            id(firmware_update).set_source_url("${wifi_cloud_manifest_url}");
+          } else if (option == "Ethernet Cloud" || option == "Ethernet + SmartHomeShop App (cloud)") {
+            ESP_LOGI("main", "OTA updates set to use Ethernet + SmartHomeShop App (cloud) firmware");
+            id(firmware_update).set_source_url("${ethernet_cloud_manifest_url}");
+          } else {
+            ESP_LOGI("main", "OTA updates set to use WiFi (local) firmware");
+            id(firmware_update).set_source_url("${wifi_manifest_url}");
+          }
+
 
 # Firmware selector for local and SmartHomeShop App (cloud) variants
 select:
@@ -161,22 +184,9 @@ select:
     initial_option: ${default_network}
     on_value:
       then:
-        - lambda: |-
-            std::string option = id(firmware_selector).current_option();
-            if (option == "Ethernet" || option == "Ethernet (local)") {
-              ESP_LOGI("main", "OTA updates set to use Ethernet (local) firmware");
-              id(firmware_update).set_source_url("${ethernet_manifest_url}");
-            } else if (option == "WiFi Cloud" || option == "WiFi + SmartHomeShop App (cloud)") {
-              ESP_LOGI("main", "OTA updates set to use WiFi + SmartHomeShop App (cloud) firmware");
-              id(firmware_update).set_source_url("${wifi_cloud_manifest_url}");
-            } else if (option == "Ethernet Cloud" || option == "Ethernet + SmartHomeShop App (cloud)") {
-              ESP_LOGI("main", "OTA updates set to use Ethernet + SmartHomeShop App (cloud) firmware");
-              id(firmware_update).set_source_url("${ethernet_cloud_manifest_url}");
-            } else {
-              ESP_LOGI("main", "OTA updates set to use WiFi (local) firmware");
-              id(firmware_update).set_source_url("${wifi_manifest_url}");
-            }
-        - component.update: firmware_update
+        - script.execute: sync_selected_firmware_source
+        - update.check:
+            id: firmware_update
 
 # Switch to restart the waterp1meter
 switch:
@@ -265,6 +275,13 @@ dsmr:
   water_mbus_id: ${water_mbus_id}
 
 sensor:
+  # ESP32 internal temperature for owner diagnostics.
+  - platform: internal_temperature
+    id: cpu_temperature
+    name: "CPU Temperature"
+    entity_category: diagnostic
+    update_interval: 60s
+
   # DSMR part
   - platform: dsmr
     energy_delivered_tariff1:

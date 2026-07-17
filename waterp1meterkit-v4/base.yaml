@@ -10,6 +10,9 @@ substitutions:
   wifi_manifest_url: "https://smarthomeshop.github.io/waterp1meterkit/waterp1meterkit-v4-wifi-manifest.json"
   ethernet_manifest_url: "https://smarthomeshop.github.io/waterp1meterkit/waterp1meterkit-v4-ethernet-manifest.json"
   firmware_manifest_url: "https://smarthomeshop.github.io/waterp1meterkit/waterp1meterkit-v4-wifi-manifest.json"
+  wifi_cloud_manifest_url: "https://smarthomeshop.github.io/waterp1meterkit/waterp1meterkit-v4-wifi-cloud-manifest.json"
+  ethernet_cloud_manifest_url: "https://smarthomeshop.github.io/waterp1meterkit/waterp1meterkit-v4-ethernet-cloud-manifest.json"
+  default_network: "WiFi (local)"
   cloud_enabled: "false"
   # Gas meter MBus ID (usually 1, but can be 2, 3, or 4 depending on your meter)
   # Change this value and reflash if your gas meter doesn't show data
@@ -115,8 +118,58 @@ update:
     id: firmware_update
     source: ${firmware_manifest_url}
 
+# === Firmware Variant Selector ===
+# Same contract as the other SmartHomeShop products so the setup portal
+# bridge (github://smarthomeshop/setup-portal) can drive it.
+script:
+  - id: sync_selected_firmware_source
+    then:
+      - lambda: |-
+          std::string option = id(firmware_selector).current_option();
+          if (option == "Ethernet" || option == "Ethernet (local)") {
+            ESP_LOGI("main", "OTA updates set to use Ethernet (local) firmware");
+            id(firmware_update).set_source_url("${ethernet_manifest_url}");
+          } else if (option == "WiFi Cloud" || option == "WiFi + SmartHomeShop App (cloud)") {
+            ESP_LOGI("main", "OTA updates set to use WiFi + SmartHomeShop App (cloud) firmware");
+            id(firmware_update).set_source_url("${wifi_cloud_manifest_url}");
+          } else if (option == "Ethernet Cloud" || option == "Ethernet + SmartHomeShop App (cloud)") {
+            ESP_LOGI("main", "OTA updates set to use Ethernet + SmartHomeShop App (cloud) firmware");
+            id(firmware_update).set_source_url("${ethernet_cloud_manifest_url}");
+          } else {
+            ESP_LOGI("main", "OTA updates set to use WiFi (local) firmware");
+            id(firmware_update).set_source_url("${wifi_manifest_url}");
+          }
+
+select:
+  - platform: template
+    id: firmware_selector
+    name: "${friendly_name} Firmware Variant"
+    icon: "mdi:network"
+    entity_category: config
+    optimistic: true
+    restore_value: true
+    options:
+      - "WiFi (local)"
+      - "Ethernet (local)"
+      - "WiFi + SmartHomeShop App (cloud)"
+      - "Ethernet + SmartHomeShop App (cloud)"
+    initial_option: ${default_network}
+    on_value:
+      then:
+        - script.execute: sync_selected_firmware_source
+        - update.check:
+            id: firmware_update
+
 web_server:
   port: 80
+  version: 3
+  sorting_groups:
+    - id: sorting_group_water
+      name: "Water"
+      sorting_weight: 10
+    - id: sorting_group_climate
+      name: "Climate"
+      sorting_weight: 20
 
 # Switch to restart the waterp1meter
 switch:
@@ -163,6 +216,9 @@ binary_sensor:
   - platform: gpio
     id: water_leak_sensor
     name: "Water Leak Sensor"
+    web_server:
+      sorting_group_id: sorting_group_water
+      sorting_weight: 3
     pin:
       number: GPIO5
       mode:
@@ -223,6 +279,13 @@ dsmr:
   water_mbus_id: ${water_mbus_id}
 
 sensor:
+  # ESP32-C6 internal temperature for owner diagnostics.
+  - platform: internal_temperature
+    id: cpu_temperature
+    name: "CPU Temperature"
+    entity_category: diagnostic
+    update_interval: 60s
+
   # DSMR part
   - platform: dsmr
     energy_delivered_tariff1:
@@ -391,6 +454,9 @@ sensor:
   - platform: pulse_meter
     id: sensor_pulse_meter
     name: "Water Current Usage"
+    web_server:
+      sorting_group_id: sorting_group_water
+      sorting_weight: 1
     icon: "mdi:water-pump"
     unit_of_measurement: "L/min"
     device_class: volume_flow_rate
@@ -420,6 +486,9 @@ sensor:
   - platform: template
     id: sensor_water_meter_total
     name: "Water Meter Total"
+    web_server:
+      sorting_group_id: sorting_group_water
+      sorting_weight: 2
     icon: "mdi:water-check"
     unit_of_measurement: "m³"
     state_class: total_increasing
@@ -443,11 +512,17 @@ sensor:
     temperature:
       id: sensor_temperature
       name: "Temperature"
+      web_server:
+        sorting_group_id: sorting_group_climate
+        sorting_weight: 1
       filters:
         offset: -4.5
     humidity:
       id: sensor_humidity
       name: "Humidity"
+      web_server:
+        sorting_group_id: sorting_group_climate
+        sorting_weight: 2
       filters:
         offset: 12
     update_interval: 60s

@@ -3,12 +3,28 @@
 # User chose cloud firmware = user wants cloud sync
 
 substitutions:
+  # SmartHomeShop setup portal
+  setup_product_name: "WaterP1MeterKit"
+  setup_product_variant: "V2 WiFi + SmartHomeShop Cloud"
+  setup_support_cloud: "true"
+  setup_support_home_assistant: "true"
+  setup_support_mqtt: "false"
+  setup_support_homey: "false"
+  setup_support_ethernet: "true"
+  setup_support_firmware_selector: "true"
+  setup_default_cloud_enabled: "true"
+  setup_default_home_assistant_enabled: "true"
+  setup_default_mqtt_enabled: "false"
+  setup_firmware_options: "WiFi (local)|Ethernet (local)|WiFi + SmartHomeShop App (cloud)|Ethernet + SmartHomeShop App (cloud)"
+  setup_default_firmware_option: ${default_network}
   default_network: "WiFi + SmartHomeShop App (cloud)"
 
 packages:
   base: !include base.yaml
   wifi: !include wifi.yaml
   cloud: !include cloud.yaml
+  setup_portal: github://smarthomeshop/setup-portal/packages/setup-portal.yaml@main
+  setup_portal_bridge: github://smarthomeshop/setup-portal/packages/firmware-selector-bridge.yaml@main
 
 dashboard_import:
   package_import_url: github://smarthomeshop/waterp1meterkit/waterp1meterkit-v2/waterp1meterkit-wifi-cloud.yaml@main
