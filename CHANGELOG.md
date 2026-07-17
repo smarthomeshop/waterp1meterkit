@@ -6,6 +6,11 @@ This changelog starts on 2026-04-14. Earlier firmware versions existed before th
 
 ## [Unreleased]
 
+- Add customer-facing firmware notes here before merging a PR.
+
+## [WaterP1MeterKit V1 1.14] - 2026-07-17
+
+
 - Added the branded SmartHomeShop setup portal to all WaterP1MeterKit WiFi firmware variants (V1 to V4): connecting to the fallback hotspot now opens a SmartHomeShop setup page to pick your WiFi network, choose the firmware variant and see next steps for Home Assistant or SmartHomeShop Cloud.
 - The setup portal can also switch the device to the Ethernet firmware: pick Ethernet during setup and the device installs the matching Ethernet variant over WiFi in the background (about two minutes), after which you plug in the network cable.
 - Added a Firmware Variant selector to WaterP1MeterKit V4, matching the other hardware versions.
@@ -13,7 +18,43 @@ This changelog starts on 2026-04-14. Earlier firmware versions existed before th
 - Fixed cloud firmware restarting every 15 minutes when Home Assistant is not connected: the no-client reboot of the native API is now disabled on cloud firmware.
 - Added a CPU temperature diagnostic sensor, also synced to SmartHomeShop Cloud.
 
-- Add customer-facing firmware notes here before merging a PR.
+
+
+## [WaterP1MeterKit V2 1.15] - 2026-07-17
+
+
+- Added the branded SmartHomeShop setup portal to all WaterP1MeterKit WiFi firmware variants (V1 to V4): connecting to the fallback hotspot now opens a SmartHomeShop setup page to pick your WiFi network, choose the firmware variant and see next steps for Home Assistant or SmartHomeShop Cloud.
+- The setup portal can also switch the device to the Ethernet firmware: pick Ethernet during setup and the device installs the matching Ethernet variant over WiFi in the background (about two minutes), after which you plug in the network cable.
+- Added a Firmware Variant selector to WaterP1MeterKit V4, matching the other hardware versions.
+- The fallback setup hotspot now uses the device name as password instead of being an open network.
+- Fixed cloud firmware restarting every 15 minutes when Home Assistant is not connected: the no-client reboot of the native API is now disabled on cloud firmware.
+- Added a CPU temperature diagnostic sensor, also synced to SmartHomeShop Cloud.
+
+
+
+## [WaterP1MeterKit V3 1.14] - 2026-07-17
+
+
+- Added the branded SmartHomeShop setup portal to all WaterP1MeterKit WiFi firmware variants (V1 to V4): connecting to the fallback hotspot now opens a SmartHomeShop setup page to pick your WiFi network, choose the firmware variant and see next steps for Home Assistant or SmartHomeShop Cloud.
+- The setup portal can also switch the device to the Ethernet firmware: pick Ethernet during setup and the device installs the matching Ethernet variant over WiFi in the background (about two minutes), after which you plug in the network cable.
+- Added a Firmware Variant selector to WaterP1MeterKit V4, matching the other hardware versions.
+- The fallback setup hotspot now uses the device name as password instead of being an open network.
+- Fixed cloud firmware restarting every 15 minutes when Home Assistant is not connected: the no-client reboot of the native API is now disabled on cloud firmware.
+- Added a CPU temperature diagnostic sensor, also synced to SmartHomeShop Cloud.
+
+
+
+## [WaterP1MeterKit V4 1.12] - 2026-07-17
+
+
+- Added the branded SmartHomeShop setup portal to all WaterP1MeterKit WiFi firmware variants (V1 to V4): connecting to the fallback hotspot now opens a SmartHomeShop setup page to pick your WiFi network, choose the firmware variant and see next steps for Home Assistant or SmartHomeShop Cloud.
+- The setup portal can also switch the device to the Ethernet firmware: pick Ethernet during setup and the device installs the matching Ethernet variant over WiFi in the background (about two minutes), after which you plug in the network cable.
+- Added a Firmware Variant selector to WaterP1MeterKit V4, matching the other hardware versions.
+- The fallback setup hotspot now uses the device name as password instead of being an open network.
+- Fixed cloud firmware restarting every 15 minutes when Home Assistant is not connected: the no-client reboot of the native API is now disabled on cloud firmware.
+- Added a CPU temperature diagnostic sensor, also synced to SmartHomeShop Cloud.
+
+
 
 ## [WaterP1MeterKit V1 1.13] - 2026-06-29
 
