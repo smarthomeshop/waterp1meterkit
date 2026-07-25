@@ -704,8 +704,18 @@ jobs:
 
   create-releases:
     name: Create GitHub releases
-    needs: [detect-changes]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [detect-changes, publish-v1-wifi, publish-v1-ethernet, publish-v2-wifi, publish-v2-ethernet, publish-v3-wifi, publish-v3-wifi-cloud, publish-v3-ethernet, publish-v3-ethernet-cloud, publish-v4-wifi, publish-v4-wifi-cloud, publish-v4-ethernet, publish-v4-ethernet-cloud]
+    # Only tag a release once the firmware behind it is actually published.
+    # always() is required so this still runs when some publish jobs are
+    # skipped (for example when only one hardware version changed); a failed
+    # or cancelled publish still blocks the release.
+    if: >-
+      always() &&
+      github.event_name == 'push' &&
+      github.ref == 'refs/heads/main' &&
+      needs.detect-changes.result == 'success' &&
+      !contains(needs.*.result, 'failure') &&
+      !contains(needs.*.result, 'cancelled')
     runs-on: ubuntu-latest
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
