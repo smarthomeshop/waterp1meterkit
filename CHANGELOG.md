@@ -6,8 +6,14 @@ This changelog starts on 2026-04-14. Earlier firmware versions existed before th
 
 ## [Unreleased]
 
+- Add customer-facing firmware notes here before merging a PR.
+
+## [WaterP1MeterKit V4 1.13] - 2026-08-04
+
+
 - Added guided post-install hardware checks for WaterP1MeterKit V4 Wi-Fi and
   Ethernet firmware, including local and SmartHomeShop cloud variants.
+
 
 ## [WaterP1MeterKit V1 1.14] - 2026-07-17
 
