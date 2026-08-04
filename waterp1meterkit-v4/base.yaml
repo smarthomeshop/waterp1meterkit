@@ -509,6 +509,7 @@ sensor:
 
   # HDC1080 temp & hum sensor
   - platform: hdc1080
+    id: hdc1080_sensor
     temperature:
       id: sensor_temperature
       name: "Temperature"

@@ -1,0 +1,4 @@
+# WaterP1MeterKit V4 ethernet image with post-flash on-board hardware checks.
+packages:
+  product: !include waterp1meterkit-ethernet.yaml
+  factory_hardware_test: !include packages/factory_hardware_test.yaml

@@ -1,0 +1,4 @@
+# WaterP1MeterKit V4 wifi image with post-flash on-board hardware checks.
+packages:
+  product: !include waterp1meterkit-wifi.yaml
+  factory_hardware_test: !include packages/factory_hardware_test.yaml

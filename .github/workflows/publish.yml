@@ -648,7 +648,7 @@ jobs:
     if: needs.detect-changes.outputs.v4_build == 'true'
     uses: ./.github/workflows/esphome-build.yml
     with:
-      files: waterp1meterkit-v4/waterp1meterkit-wifi.yaml
+      files: waterp1meterkit-v4/waterp1meterkit-wifi-factory-hardware-test.yaml
       name: WaterP1MeterKit V4 WiFi
       manifest_filename: waterp1meterkit-v4-wifi-manifest.json
       clean: false
@@ -663,7 +663,7 @@ jobs:
     if: needs.detect-changes.outputs.v4_build == 'true' && needs.detect-changes.outputs.v4_wifi_cloud_exists == 'true'
     uses: ./.github/workflows/esphome-build.yml
     with:
-      files: waterp1meterkit-v4/waterp1meterkit-wifi-cloud.yaml
+      files: waterp1meterkit-v4/waterp1meterkit-wifi-cloud-factory-hardware-test.yaml
       name: WaterP1MeterKit V4 WiFi Cloud
       manifest_filename: waterp1meterkit-v4-wifi-cloud-manifest.json
       clean: false
@@ -678,7 +678,7 @@ jobs:
     if: needs.detect-changes.outputs.v4_build == 'true'
     uses: ./.github/workflows/esphome-build.yml
     with:
-      files: waterp1meterkit-v4/waterp1meterkit-ethernet.yaml
+      files: waterp1meterkit-v4/waterp1meterkit-ethernet-factory-hardware-test.yaml
       name: WaterP1MeterKit V4 Ethernet
       manifest_filename: waterp1meterkit-v4-ethernet-manifest.json
       clean: false
@@ -693,7 +693,7 @@ jobs:
     if: needs.detect-changes.outputs.v4_build == 'true' && needs.detect-changes.outputs.v4_ethernet_cloud_exists == 'true'
     uses: ./.github/workflows/esphome-build.yml
     with:
-      files: waterp1meterkit-v4/waterp1meterkit-ethernet-cloud.yaml
+      files: waterp1meterkit-v4/waterp1meterkit-ethernet-cloud-factory-hardware-test.yaml
       name: WaterP1MeterKit V4 Ethernet Cloud
       manifest_filename: waterp1meterkit-v4-ethernet-cloud-manifest.json
       clean: false

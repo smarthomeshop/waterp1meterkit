@@ -1,0 +1,73 @@
+# Reports on-board checks to the SmartHomeShop web installer over USB serial.
+globals:
+  - id: shs_test_hdc_done
+    type: bool
+    restore_value: no
+    initial_value: "false"
+  - id: shs_test_external_done
+    type: bool
+    restore_value: no
+    initial_value: "false"
+  - id: shs_test_failed
+    type: bool
+    restore_value: no
+    initial_value: "false"
+
+esphome:
+  on_boot:
+    - priority: 595
+      then:
+        - lambda: |-
+            ESP_LOGI("shs_test", "SHS_TEST/1 {\"type\":\"begin\",\"profile\":\"waterp1meterkit-v4\",\"timeout\":15,\"tests\":[{\"id\":\"firmware\",\"label\":\"Firmware startup\"},{\"id\":\"temperature\",\"label\":\"HDC1080 temperature sensor\"},{\"id\":\"humidity\",\"label\":\"HDC1080 humidity sensor\"},{\"id\":\"p1_input\",\"label\":\"P1 meter input\"},{\"id\":\"water_pulse\",\"label\":\"Water pulse input\"},{\"id\":\"expansion_input\",\"label\":\"Expansion input\"}]}");
+            ESP_LOGI("shs_test", "SHS_TEST/1 {\"type\":\"test\",\"id\":\"firmware\",\"status\":\"pass\",\"detail\":\"WaterP1MeterKit firmware started\"}");
+
+    - priority: 580
+      then:
+        - delay: 1s
+        - component.update: hdc1080_sensor
+        - wait_until:
+            condition:
+              lambda: |-
+                return id(sensor_temperature).has_state() && !isnan(id(sensor_temperature).state) &&
+                       id(sensor_humidity).has_state() && !isnan(id(sensor_humidity).state);
+            timeout: 8s
+        - if:
+            condition:
+              lambda: return id(sensor_temperature).has_state() && !isnan(id(sensor_temperature).state);
+            then:
+              - lambda: |-
+                  ESP_LOGI("shs_test", "SHS_TEST/1 {\"type\":\"test\",\"id\":\"temperature\",\"status\":\"pass\",\"value\":%.1f,\"unit\":\"C\"}", id(sensor_temperature).state);
+            else:
+              - lambda: |-
+                  id(shs_test_failed) = true;
+                  ESP_LOGI("shs_test", "SHS_TEST/1 {\"type\":\"test\",\"id\":\"temperature\",\"status\":\"fail\",\"detail\":\"No temperature measurement\"}");
+        - if:
+            condition:
+              lambda: return id(sensor_humidity).has_state() && !isnan(id(sensor_humidity).state);
+            then:
+              - lambda: |-
+                  ESP_LOGI("shs_test", "SHS_TEST/1 {\"type\":\"test\",\"id\":\"humidity\",\"status\":\"pass\",\"value\":%.1f,\"unit\":\"%%\"}", id(sensor_humidity).state);
+            else:
+              - lambda: |-
+                  id(shs_test_failed) = true;
+                  ESP_LOGI("shs_test", "SHS_TEST/1 {\"type\":\"test\",\"id\":\"humidity\",\"status\":\"fail\",\"detail\":\"No humidity measurement\"}");
+        - lambda: id(shs_test_hdc_done) = true;
+
+    - priority: 570
+      then:
+        - lambda: |-
+            ESP_LOGI("shs_test", "SHS_TEST/1 {\"type\":\"test\",\"id\":\"p1_input\",\"status\":\"skip\",\"detail\":\"Not tested - no P1 cable connected during packing\"}");
+            ESP_LOGI("shs_test", "SHS_TEST/1 {\"type\":\"test\",\"id\":\"water_pulse\",\"status\":\"skip\",\"detail\":\"Not tested - no water sensor connected during packing\"}");
+            ESP_LOGI("shs_test", "SHS_TEST/1 {\"type\":\"test\",\"id\":\"expansion_input\",\"status\":\"skip\",\"detail\":\"Not tested - no accessory connected during packing\"}");
+            id(shs_test_external_done) = true;
+
+    - priority: 500
+      then:
+        - wait_until:
+            condition:
+              lambda: return id(shs_test_hdc_done) && id(shs_test_external_done);
+            timeout: 12s
+        - lambda: |-
+            const bool finished = id(shs_test_hdc_done) && id(shs_test_external_done);
+            const bool passed = finished && !id(shs_test_failed);
+            ESP_LOGI("shs_test", "SHS_TEST/1 {\"type\":\"result\",\"status\":\"%s\"}", passed ? "pass" : "fail");
