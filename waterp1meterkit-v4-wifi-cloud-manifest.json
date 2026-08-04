@@ -1,6 +1,6 @@
 {
   "name": "WaterP1MeterKit V4 WiFi Cloud",
-  "version": "1.12",
+  "version": "1.13",
   "home_assistant_domain": "esphome",
   "new_install_skip_erase": false,
   "builds": [
@@ -8,7 +8,7 @@
       "chipFamily": "ESP32-C6",
       "ota": {
         "path": "waterp1meterkit-v4-wifi-cloud/waterp1meterkit-v4-esp32c6.ota.bin",
-        "md5": "c575f163842eacb45780f5db00c4310a"
+        "md5": "a73cb5ff8151b264af98aafad0f4731c"
       },
       "parts": [
         {
