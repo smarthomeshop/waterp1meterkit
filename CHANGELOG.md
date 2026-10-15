@@ -6,6 +6,11 @@ This changelog starts on 2026-04-14. Earlier firmware versions existed before th
 
 ## [Unreleased]
 
+- Add customer-facing firmware notes here before merging a PR.
+
+## [WaterP1MeterKit V1 1.15] - 2026-10-15
+
+
 - Publish V1/V2 cloud firmware alongside local variants and rebuild all hardware when shared water packages change.
 
 - Bound cloud HTTP waits and protect ESP32 cloud requests from task watchdog resets; combine simultaneous power, totals and water syncs into one request.
@@ -13,6 +18,46 @@ This changelog starts on 2026-04-14. Earlier firmware versions existed before th
 - Immediately save manually calibrated meter readings and remaining usage on clean restarts or OTA updates. Update the absolute reading on the first pulse.
 - Add an uptime diagnostic to help distinguish device restarts from API reconnects.
 - Fix the legacy Ethernet configuration selecting an unavailable firmware option.
+
+
+
+## [WaterP1MeterKit V2 1.16] - 2026-10-15
+
+
+- Publish V1/V2 cloud firmware alongside local variants and rebuild all hardware when shared water packages change.
+
+- Bound cloud HTTP waits and protect ESP32 cloud requests from task watchdog resets; combine simultaneous power, totals and water syncs into one request.
+- Save changed water meter readings every five minutes on all hardware versions without waiting for 50 litres.
+- Immediately save manually calibrated meter readings and remaining usage on clean restarts or OTA updates. Update the absolute reading on the first pulse.
+- Add an uptime diagnostic to help distinguish device restarts from API reconnects.
+- Fix the legacy Ethernet configuration selecting an unavailable firmware option.
+
+
+
+## [WaterP1MeterKit V3 1.15] - 2026-10-15
+
+
+- Publish V1/V2 cloud firmware alongside local variants and rebuild all hardware when shared water packages change.
+
+- Bound cloud HTTP waits and protect ESP32 cloud requests from task watchdog resets; combine simultaneous power, totals and water syncs into one request.
+- Save changed water meter readings every five minutes on all hardware versions without waiting for 50 litres.
+- Immediately save manually calibrated meter readings and remaining usage on clean restarts or OTA updates. Update the absolute reading on the first pulse.
+- Add an uptime diagnostic to help distinguish device restarts from API reconnects.
+- Fix the legacy Ethernet configuration selecting an unavailable firmware option.
+
+
+
+## [WaterP1MeterKit V4 1.14] - 2026-10-15
+
+
+- Publish V1/V2 cloud firmware alongside local variants and rebuild all hardware when shared water packages change.
+
+- Bound cloud HTTP waits and protect ESP32 cloud requests from task watchdog resets; combine simultaneous power, totals and water syncs into one request.
+- Save changed water meter readings every five minutes on all hardware versions without waiting for 50 litres.
+- Immediately save manually calibrated meter readings and remaining usage on clean restarts or OTA updates. Update the absolute reading on the first pulse.
+- Add an uptime diagnostic to help distinguish device restarts from API reconnects.
+- Fix the legacy Ethernet configuration selecting an unavailable firmware option.
+
 
 
 ## [WaterP1MeterKit V4 1.13] - 2026-08-04

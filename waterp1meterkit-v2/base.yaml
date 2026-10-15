@@ -6,7 +6,7 @@ substitutions:
   water_checkpoint_interval: "5min"
   device_name: waterp1meterkit
   friendly_name: WaterP1MeterKit
-  project_version: "1.15"
+  project_version: "1.16"
   hardware_version: "V2"
   # Manifest URLs for OTA firmware updates
   wifi_manifest_url: "https://smarthomeshop.github.io/waterp1meterkit/waterp1meterkit-v2-wifi-manifest.json"
