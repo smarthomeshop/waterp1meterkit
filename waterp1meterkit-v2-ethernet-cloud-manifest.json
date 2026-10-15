@@ -1,0 +1,21 @@
+{
+  "name": "WaterP1MeterKit V2 Ethernet Cloud",
+  "version": "1.16",
+  "home_assistant_domain": "esphome",
+  "new_install_skip_erase": false,
+  "builds": [
+    {
+      "chipFamily": "ESP32",
+      "ota": {
+        "path": "waterp1meterkit-v2-ethernet-cloud/waterp1meterkit-esp32.ota.bin",
+        "md5": "3b95ef19ee699b4ec0f4bca9dcfee737"
+      },
+      "parts": [
+        {
+          "path": "waterp1meterkit-v2-ethernet-cloud/waterp1meterkit-esp32.factory.bin",
+          "offset": 0
+        }
+      ]
+    }
+  ]
+}
