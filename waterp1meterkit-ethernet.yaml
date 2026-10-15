@@ -2,7 +2,7 @@
 # New users should use: github://smarthomeshop/waterp1meterkit/waterp1meterkit-v1/waterp1meterkit-ethernet.yaml@main
 
 substitutions:
-  default_network: "Ethernet"
+  default_network: "Ethernet (local)"
 
 packages:
   base: !include waterp1meterkit-v1/base.yaml
@@ -27,5 +27,4 @@ text_sensor:
       id: ethernet_ip_address
       name: "${friendly_name} IP Address"
       icon: "mdi:network-outline"
-
 

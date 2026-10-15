@@ -20,6 +20,7 @@ on:
       - main
     paths:
       - '.github/workflows/**'
+      - 'packages/**'
       - 'waterp1meterkit-v1/**'
       - 'waterp1meterkit-v2/**'
       - 'waterp1meterkit-v3/**'
@@ -69,7 +70,7 @@ jobs:
           echo "Changed files:"
           echo "$CHANGED_FILES"
 
-          if ! echo "$CHANGED_FILES" | grep -Eq '^waterp1meterkit-v1/.*\.ya?ml$|^waterp1meterkit-v2/.*\.ya?ml$|^waterp1meterkit-v3/.*\.ya?ml$|^waterp1meterkit-v4/.*\.ya?ml$'; then
+          if ! echo "$CHANGED_FILES" | grep -Eq '^packages/.*\.ya?ml$|^waterp1meterkit-v1/.*\.ya?ml$|^waterp1meterkit-v2/.*\.ya?ml$|^waterp1meterkit-v3/.*\.ya?ml$|^waterp1meterkit-v4/.*\.ya?ml$'; then
             echo "No firmware YAML changes detected; changelog update not required"
             exit 0
           fi
@@ -208,6 +209,14 @@ jobs:
           V2_CHANGED=$(echo "$CHANGED_FILES" | grep -Eq "^waterp1meterkit-v2/.*\.ya?ml$" && echo "true" || echo "false")
           V3_CHANGED=$(echo "$CHANGED_FILES" | grep -Eq "^waterp1meterkit-v3/.*\.ya?ml$" && echo "true" || echo "false")
           V4_CHANGED=$(echo "$CHANGED_FILES" | grep -Eq "^waterp1meterkit-v4/.*\.ya?ml$" && echo "true" || echo "false")
+
+          # Shared water packages affect every hardware version.
+          if echo "$CHANGED_FILES" | grep -Eq "^packages/.*\.ya?ml$"; then
+            V1_CHANGED=true
+            V2_CHANGED=true
+            V3_CHANGED=true
+            V4_CHANGED=true
+          fi
 
           if echo "$CHANGED_FILES" | grep -q "^.github/workflows/" && \
              [[ "$V1_CHANGED" == "false" && "$V2_CHANGED" == "false" && "$V3_CHANGED" == "false" && "$V4_CHANGED" == "false" ]]; then
@@ -528,6 +537,21 @@ jobs:
       project_version: ${{ needs.detect-changes.outputs.v1_version }}
       base_path: waterp1meterkit-v1
 
+  publish-v1-wifi-cloud:
+    name: Publish WaterP1MeterKit V1 WiFi Cloud
+    needs: [detect-changes]
+    if: needs.detect-changes.outputs.v1_build == 'true'
+    uses: ./.github/workflows/esphome-build.yml
+    with:
+      files: waterp1meterkit-v1/waterp1meterkit-wifi-cloud.yaml
+      name: WaterP1MeterKit V1 WiFi Cloud
+      manifest_filename: waterp1meterkit-v1-wifi-cloud-manifest.json
+      clean: false
+      esphome_version: latest
+      directory_name: waterp1meterkit-v1-wifi-cloud
+      project_version: ${{ needs.detect-changes.outputs.v1_version }}
+      base_path: waterp1meterkit-v1
+
   publish-v1-ethernet:
     name: Publish WaterP1MeterKit V1 Ethernet
     needs: [detect-changes]
@@ -540,6 +564,21 @@ jobs:
       clean: false
       esphome_version: latest
       directory_name: waterp1meterkit-v1-ethernet
+      project_version: ${{ needs.detect-changes.outputs.v1_version }}
+      base_path: waterp1meterkit-v1
+
+  publish-v1-ethernet-cloud:
+    name: Publish WaterP1MeterKit V1 Ethernet Cloud
+    needs: [detect-changes]
+    if: needs.detect-changes.outputs.v1_build == 'true'
+    uses: ./.github/workflows/esphome-build.yml
+    with:
+      files: waterp1meterkit-v1/waterp1meterkit-ethernet-cloud.yaml
+      name: WaterP1MeterKit V1 Ethernet Cloud
+      manifest_filename: waterp1meterkit-v1-ethernet-cloud-manifest.json
+      clean: false
+      esphome_version: latest
+      directory_name: waterp1meterkit-v1-ethernet-cloud
       project_version: ${{ needs.detect-changes.outputs.v1_version }}
       base_path: waterp1meterkit-v1
 
@@ -561,6 +600,21 @@ jobs:
       project_version: ${{ needs.detect-changes.outputs.v2_version }}
       base_path: waterp1meterkit-v2
 
+  publish-v2-wifi-cloud:
+    name: Publish WaterP1MeterKit V2 WiFi Cloud
+    needs: [detect-changes]
+    if: needs.detect-changes.outputs.v2_build == 'true'
+    uses: ./.github/workflows/esphome-build.yml
+    with:
+      files: waterp1meterkit-v2/waterp1meterkit-wifi-cloud.yaml
+      name: WaterP1MeterKit V2 WiFi Cloud
+      manifest_filename: waterp1meterkit-v2-wifi-cloud-manifest.json
+      clean: false
+      esphome_version: latest
+      directory_name: waterp1meterkit-v2-wifi-cloud
+      project_version: ${{ needs.detect-changes.outputs.v2_version }}
+      base_path: waterp1meterkit-v2
+
   publish-v2-ethernet:
     name: Publish WaterP1MeterKit V2 Ethernet
     needs: [detect-changes]
@@ -573,6 +627,21 @@ jobs:
       clean: false
       esphome_version: latest
       directory_name: waterp1meterkit-v2-ethernet
+      project_version: ${{ needs.detect-changes.outputs.v2_version }}
+      base_path: waterp1meterkit-v2
+
+  publish-v2-ethernet-cloud:
+    name: Publish WaterP1MeterKit V2 Ethernet Cloud
+    needs: [detect-changes]
+    if: needs.detect-changes.outputs.v2_build == 'true'
+    uses: ./.github/workflows/esphome-build.yml
+    with:
+      files: waterp1meterkit-v2/waterp1meterkit-ethernet-cloud.yaml
+      name: WaterP1MeterKit V2 Ethernet Cloud
+      manifest_filename: waterp1meterkit-v2-ethernet-cloud-manifest.json
+      clean: false
+      esphome_version: latest
+      directory_name: waterp1meterkit-v2-ethernet-cloud
       project_version: ${{ needs.detect-changes.outputs.v2_version }}
       base_path: waterp1meterkit-v2
 
@@ -704,7 +773,7 @@ jobs:
 
   create-releases:
     name: Create GitHub releases
-    needs: [detect-changes, publish-v1-wifi, publish-v1-ethernet, publish-v2-wifi, publish-v2-ethernet, publish-v3-wifi, publish-v3-wifi-cloud, publish-v3-ethernet, publish-v3-ethernet-cloud, publish-v4-wifi, publish-v4-wifi-cloud, publish-v4-ethernet, publish-v4-ethernet-cloud]
+    needs: [detect-changes, publish-v1-wifi, publish-v1-wifi-cloud, publish-v1-ethernet, publish-v1-ethernet-cloud, publish-v2-wifi, publish-v2-wifi-cloud, publish-v2-ethernet, publish-v2-ethernet-cloud, publish-v3-wifi, publish-v3-wifi-cloud, publish-v3-ethernet, publish-v3-ethernet-cloud, publish-v4-wifi, publish-v4-wifi-cloud, publish-v4-ethernet, publish-v4-ethernet-cloud]
     # Only tag a release once the firmware behind it is actually published.
     # always() is required so this still runs when some publish jobs are
     # skipped (for example when only one hardware version changed); a failed

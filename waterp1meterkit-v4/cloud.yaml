@@ -27,11 +27,19 @@ substitutions:
   # Cloud API configuration
   cloud_api_url: "https://api.smarthomeshop.io"
   cloud_api_version: "v1"
+  cloud_http_timeout: "3s"
+  cloud_http_watchdog_timeout: "15s"
   # Smart sync intervals
   cloud_sync_interval_power: "10s"
   cloud_sync_interval_totals: "5min"
   cloud_sync_interval_water: "5min"
   cloud_active_water_flow_threshold_lpm: "0.05"
+
+# Bound each network operation and allow the HTTP operation to finish before
+# the five-second ESP32 task watchdog fires. Request/response fields stay v1.
+http_request:
+  timeout: ${cloud_http_timeout}
+  watchdog_timeout: ${cloud_http_watchdog_timeout}
 
 # Auto-register on boot (cloud firmware = user wants cloud)
 esphome:
@@ -414,7 +422,12 @@ script:
           id(power_returned_sum) = 0.0;
           id(power_sample_count) = 0;
 
-      - script.execute: cloud_send_batch
+      - if:
+          condition:
+            not:
+              script.is_running: cloud_send_batch
+          then:
+            - script.execute: cloud_send_batch
 
   # ============================================
   # Totals Sync (every 5 min - delta check)
@@ -467,7 +480,12 @@ script:
             ESP_LOGV("cloud", "Totals unchanged, skipping");
           }
 
-      - script.execute: cloud_send_batch
+      - if:
+          condition:
+            not:
+              script.is_running: cloud_send_batch
+          then:
+            - script.execute: cloud_send_batch
 
   # ============================================
   # Water Sync (5 min backup - delta check)
@@ -497,7 +515,12 @@ script:
             id(last_water_sync_time) = now;
           }
 
-      - script.execute: cloud_send_batch
+      - if:
+          condition:
+            not:
+              script.is_running: cloud_send_batch
+          then:
+            - script.execute: cloud_send_batch
 
   # ============================================
   # Batched Send - Combines all pending data
@@ -557,6 +580,8 @@ script:
               "id(pending_water_data)",
             ]
 
+      # Coalesce power, totals and water intervals into a single request.
+      - delay: 100ms
       - lambda: "id(cloud_last_sync_success) = false;"
 
       - http_request.post:

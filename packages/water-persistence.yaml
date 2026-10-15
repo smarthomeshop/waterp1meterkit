@@ -1,0 +1,47 @@
+# Shared water checkpoint logic for every hardware and network variant.
+# The including base keeps the existing globals and their types/IDs so OTA
+# upgrades can restore the previously stored meter reading.
+# water_checkpoint_interval is 5min on ESP32 and 30min on ESP8266. ESP8266
+# preferences erase one flash sector per changed sync, unlike ESP32 NVS.
+
+esphome:
+  on_shutdown:
+    priority: -100
+    then:
+      # No delays: complete the checkpoint before preferences are shut down.
+      - script.execute: save_water_checkpoint
+
+interval:
+  - interval: ${water_checkpoint_interval}
+    then:
+      - script.execute: save_water_checkpoint
+
+script:
+  - id: save_water_checkpoint
+    mode: single
+    then:
+      - lambda: |-
+          if (!id(sensor_pulse_meter_total).has_state() ||
+              !std::isfinite(id(sensor_pulse_meter_total).state)) {
+            ESP_LOGW("water", "Skipping checkpoint: pulse total unavailable");
+            return;
+          }
+
+          const float pulse_total = id(sensor_pulse_meter_total).state;
+          const float delta = pulse_total - id(water_pulse_offset);
+          if (delta <= 0.0f) {
+            return;
+          }
+
+          id(water_total_persistent) += delta;
+          id(water_pulse_offset) = pulse_total;
+
+          // id(global) exposes its value, not the restoring component.
+          // Update the component's preference buffer before flushing flash.
+          water_total_persistent->update();
+          if (global_preferences->sync()) {
+            ESP_LOGI("water", "Water checkpoint saved: %.3f m³ (+%.3f m³)",
+                     id(water_total_persistent), delta);
+          } else {
+            ESP_LOGE("water", "Failed to save water checkpoint");
+          }

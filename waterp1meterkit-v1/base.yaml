@@ -2,6 +2,8 @@
 # This file contains shared configuration for both WiFi and Ethernet variants
 
 substitutions:
+  # Water checkpoints: limit unsaved usage without writing every pulse.
+  water_checkpoint_interval: "5min"
   device_name: waterp1meterkit
   friendly_name: WaterP1MeterKit
   project_version: "1.14"
@@ -20,6 +22,9 @@ substitutions:
   # DSMR water meter MBus ID for Belgian digital water meters (usually 2)
   # Only used when the utility meter exposes a water meter through DSMR/P1
   water_mbus_id: "2"
+
+packages:
+  water_persistence: !include ../packages/water-persistence.yaml
 
 esphome:
   name: ${device_name}
@@ -56,22 +61,6 @@ esphome:
             id(water_pulse_offset) = 0.0;
             id(water_meter_initial).publish_state(id(water_total_persistent));
         - component.update: sensor_water_meter_total
-  on_shutdown:
-    priority: -100
-    then:
-      # Persist any unsaved usage during clean shutdowns (restart/OTA).
-      - lambda: |-
-          if (!id(sensor_pulse_meter_total).has_state() || isnan(id(sensor_pulse_meter_total).state)) {
-            ESP_LOGW("water", "Skipping shutdown save: water pulse total unavailable");
-            return;
-          }
-
-          float pulses_since_offset = id(sensor_pulse_meter_total).state - id(water_pulse_offset);
-          if (pulses_since_offset > 0) {
-            id(water_total_persistent) += pulses_since_offset;
-            id(water_pulse_offset) = id(sensor_pulse_meter_total).state;
-            ESP_LOGI("water", "Water total saved on shutdown: %.3f m³", id(water_total_persistent));
-          }
 
 preferences:
   # Buffer writes so absolute meter persistence does not hammer flash.
@@ -84,29 +73,11 @@ globals:
     restore_value: true
     initial_value: "0.0"
 
-  # Runtime offset since the last persisted save.
+  # Runtime offset since the last checkpoint.
   - id: water_pulse_offset
     type: float
     restore_value: false
     initial_value: "0.0"
-
-interval:
-  - interval: 5min
-    then:
-      - lambda: |-
-          if (!id(sensor_pulse_meter_total).has_state() || isnan(id(sensor_pulse_meter_total).state)) {
-            ESP_LOGV("water", "Skipping periodic save: water pulse total unavailable");
-            return;
-          }
-
-          float pulses_since_offset = id(sensor_pulse_meter_total).state - id(water_pulse_offset);
-
-          // Only persist when at least 50 liters changed since the last save.
-          if (pulses_since_offset >= 0.05) {
-            id(water_total_persistent) += pulses_since_offset;
-            id(water_pulse_offset) = id(sensor_pulse_meter_total).state;
-            ESP_LOGI("water", "Water total saved to flash: %.3f m³ (+%.3f m³)", id(water_total_persistent), pulses_since_offset);
-          }
 
 esp32:
   board: esp32dev
@@ -224,9 +195,14 @@ number:
             } else {
               id(water_pulse_offset) = 0.0;
             }
-            global_preferences->sync();
+            // Queue the new global before explicitly flushing preferences.
+            water_total_persistent->update();
+            if (global_preferences->sync()) {
+              ESP_LOGI("water", "Calibrated meter reading saved: %.3f m³", x);
+            } else {
+              ESP_LOGE("water", "Failed to save calibrated meter reading");
+            }
             id(sensor_water_meter_total).update();
-            ESP_LOGI("water", "Water meter initial value saved immediately: %.3f m³", x);
 
 # I²C Bus
 i2c:
@@ -275,6 +251,12 @@ dsmr:
   water_mbus_id: ${water_mbus_id}
 
 sensor:
+  - platform: uptime
+    id: sensor_uptime
+    name: "${friendly_name} Uptime"
+    entity_category: diagnostic
+    update_interval: 30s
+
   # ESP32 internal temperature for owner diagnostics.
   - platform: internal_temperature
     id: cpu_temperature
@@ -468,13 +450,15 @@ sensor:
       accuracy_decimals: 3
       filters:
         - multiply: 0.001
+      on_value:
+        then:
+          - component.update: sensor_water_meter_total
     pin: GPIO32
     on_value:
       then:
         - light.turn_on:
             id: light_led_green
             flash_length: 1s
-        - component.update: sensor_water_meter_total
 
   # Absolute water meter reading: persisted base plus pulses since last save.
   - platform: template

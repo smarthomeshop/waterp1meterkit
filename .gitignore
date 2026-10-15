@@ -10,3 +10,7 @@ CLOUD-INTEGRATION-GUIDE.md
 # ESPHome local build artifacts and secrets
 **/.esphome/
 **/secrets.yaml
+
+# Local Docker checks (dummy secrets, logs, firmware)
+.local-build/
+**/__pycache__/

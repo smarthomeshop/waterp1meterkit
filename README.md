@@ -190,3 +190,60 @@ PRs and issues are welcome. Please keep changes modular and follow ESPHome best 
 ## License
 
 This project is released under the MIT License. See [LICENSE](LICENSE).
+
+## Water meter persistence
+
+All hardware versions use the checkpoint logic in
+[`packages/water-persistence.yaml`](packages/water-persistence.yaml). Pulses are
+counted in RAM, and a changed absolute `Water Meter Total` is flushed to flash
+every five minutes, even when less than 50 litres have been used. No new pulses
+means no water checkpoint write. Calibration and clean restarts/OTA also flush
+the latest reading. An API reconnect alone does not reset the pulse counter.
+
+`water_checkpoint_interval` can be overridden in an ESPHome configuration. The
+shared preference write interval remains thirty minutes, but a water checkpoint
+also flushes any other queued preferences. Existing global IDs/types and sensor
+names are preserved so stored readings and Home Assistant entities remain
+compatible. `Water Total Consumption` still restarts at zero after a device
+reboot; `Water Meter Total` is the calibrated absolute reading.
+
+A sudden power loss or crash can lose usage since the last successful checkpoint
+(normally up to five minutes); pulses during downtime cannot be counted. The
+uptime diagnostic helps confirm whether a disconnect was a device reboot. The
+two-minute flow timeout is unchanged; session volumes and reset handling in Home
+Assistant require fixes in the integration, independently of these checkpoints.
+
+Run the storage regression checks with `python3 -m unittest discover -s tests`.
+They compile and execute the actual checkpoint, calibration and meter-reading
+lambdas using a local C++ compiler; no connected meter is required.
+
+## Local firmware checks
+
+With Python 3 and Docker Desktop running, use the pinned ESPHome 2026.7.3
+container. This also builds ESP8266 firmware on Apple Silicon without installing
+Rosetta. No local ESPHome installation or secrets file is needed.
+
+```sh
+# Run the water storage regression tests inside Docker.
+python3 tools/check-firmware.py test
+
+# Test the storage logic, validate every entrypoint and generate its C++.
+python3 tools/check-firmware.py validate
+
+# Test and compile the V4 Ethernet firmware (the default build).
+python3 tools/check-firmware.py build
+
+# Compile a specific variant, or pass multiple entrypoints in sequence.
+python3 tools/check-firmware.py build waterp1meterkit-v4/waterp1meterkit-wifi-cloud.yaml
+```
+
+The same commands are available in the neighbouring `watermeterkit` repository.
+The script reads the current local YAML, stages a copy with dummy credentials
+and a dummy Thread dataset, and keeps logs, a JSON report and compiled binaries
+under the ignored `.local-build/` directory. Developers' `secrets.yaml` files
+are not copied. Test binaries contain dummy credentials and are not intended for
+flashing; device tests require a separate build with the device's configuration.
+Generated sources and compiler caches live in the local temporary directory
+(to avoid Docker file-lock errors in Documents/iCloud folders). The first run
+needs internet to download the container, toolchains and remote packages.
+Subsequent builds reuse the caches.
