@@ -6,7 +6,7 @@ This changelog starts on 2026-04-14. Earlier firmware versions existed before th
 
 ## [Unreleased]
 
-- Add customer-facing firmware notes here before merging a PR.
+- Fix the cloud authorization header on V1, V2 and V3, which could get corrupted and made the kit fail syncs and register with the cloud again.
 
 ## [WaterP1MeterKit V1 1.15] - 2026-10-15
 

@@ -589,7 +589,10 @@ script:
           request_headers:
             Content-Type: "application/json"
             Authorization: !lambda |-
-              return ("Bearer " + id(cloud_device_token)).c_str();
+              static std::string auth;
+              auth = "Bearer ";
+              auth += id(cloud_device_token);
+              return auth.c_str();
             User-Agent: "WaterP1MeterKit/${project_version}"
             Accept: "application/json"
           capture_response: true
