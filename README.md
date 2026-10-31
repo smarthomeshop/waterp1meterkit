@@ -58,6 +58,22 @@ When WiFi setup is needed, all hardware versions use the same fallback hotspot:
 These setup credentials are independent of the ESPHome device name, hardware
 version and MAC suffix. The legacy WiFi configuration uses the same credentials.
 
+## V4 Ethernet Updates
+
+Before updating an older V4 Ethernet installation through Home Assistant, set
+`Firmware Variant` to `Ethernet (local)` or
+`Ethernet + SmartHomeShop App (cloud)`, matching the firmware actually installed.
+Older V4 Ethernet builds could default to WiFi and offer the wrong image.
+
+Fixed builds start on their compiled firmware variant and ignore a stale saved
+selector choice. You can still select another variant after startup to switch
+firmware deliberately. Existing older firmware needs the one-time selector
+correction before it can download the fixed Ethernet image.
+
+If a device has already switched to WiFi, connect it to WiFi through the setup
+hotspot and select the matching Ethernet variant, or flash the correct image
+through USB. Device names and Home Assistant identities are unchanged.
+
 ## Water Meter Total
 
 WaterP1MeterKit stores an absolute water meter total so the reading survives reboots and firmware updates.

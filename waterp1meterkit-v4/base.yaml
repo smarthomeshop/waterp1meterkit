@@ -120,7 +120,9 @@ select:
     icon: "mdi:network"
     entity_category: config
     optimistic: true
-    restore_value: true
+    # Start on the running firmware variant; ignore stale choices from older builds.
+    # Another variant can still be selected explicitly after boot.
+    restore_value: false
     options:
       - "WiFi (local)"
       - "Ethernet (local)"

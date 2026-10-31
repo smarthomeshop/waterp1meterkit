@@ -3,6 +3,7 @@
 # ESP32-C6 with W5500 SPI Ethernet
 
 substitutions:
+  default_network: "Ethernet (local)"
   firmware_manifest_url: "https://smarthomeshop.github.io/waterp1meterkit/waterp1meterkit-v4-ethernet-manifest.json"
 
 packages:

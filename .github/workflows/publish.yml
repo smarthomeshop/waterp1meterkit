@@ -38,6 +38,9 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Check firmware variant boot defaults
+        run: python3 -m unittest discover -s tests -p test_firmware_variants.py -v
+
       - name: Require changelog update for firmware changes
         shell: bash
         run: |

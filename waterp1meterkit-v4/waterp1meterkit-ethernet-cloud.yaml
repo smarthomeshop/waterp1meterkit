@@ -2,6 +2,7 @@
 # Includes local Home Assistant support plus SmartHomeShop cloud sync over HTTP POST.
 
 substitutions:
+  default_network: "Ethernet + SmartHomeShop App (cloud)"
   firmware_manifest_url: "https://smarthomeshop.github.io/waterp1meterkit/waterp1meterkit-v4-ethernet-cloud-manifest.json"
 
 packages:
