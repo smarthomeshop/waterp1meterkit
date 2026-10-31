@@ -6,7 +6,34 @@ This changelog starts on 2026-04-14. Earlier firmware versions existed before th
 
 ## [Unreleased]
 
+- Add customer-facing firmware notes here before merging a PR.
+
+## [WaterP1MeterKit V1 1.17] - 2026-10-31
+
+
 - Use `waterp1meterkit` as both the fallback WiFi hotspot name and password on V1–V4, including the legacy WiFi configuration. These credentials no longer follow the hardware-specific or customized device name.
+
+
+
+## [WaterP1MeterKit V2 1.18] - 2026-10-31
+
+
+- Use `waterp1meterkit` as both the fallback WiFi hotspot name and password on V1–V4, including the legacy WiFi configuration. These credentials no longer follow the hardware-specific or customized device name.
+
+
+
+## [WaterP1MeterKit V3 1.17] - 2026-10-31
+
+
+- Use `waterp1meterkit` as both the fallback WiFi hotspot name and password on V1–V4, including the legacy WiFi configuration. These credentials no longer follow the hardware-specific or customized device name.
+
+
+
+## [WaterP1MeterKit V4 1.15] - 2026-10-31
+
+
+- Use `waterp1meterkit` as both the fallback WiFi hotspot name and password on V1–V4, including the legacy WiFi configuration. These credentials no longer follow the hardware-specific or customized device name.
+
 
 
 ## [WaterP1MeterKit V1 1.16] - 2026-10-17
