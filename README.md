@@ -48,6 +48,16 @@ We publish customer-facing WiFi and Ethernet firmware for each hardware revision
 | V4 (ESP32-C6) | WiFi | WiFi firmware for ESP32-C6 based V4 hardware |
 | V4 (ESP32-C6) | Ethernet | W5500 SPI Ethernet firmware for ESP32-C6 based V4 hardware |
 
+## WiFi Setup Hotspot
+
+When WiFi setup is needed, all hardware versions use the same fallback hotspot:
+
+- Network name (SSID): `waterp1meterkit`
+- Password: `waterp1meterkit`
+
+These setup credentials are independent of the ESPHome device name, hardware
+version and MAC suffix. The legacy WiFi configuration uses the same credentials.
+
 ## Water Meter Total
 
 WaterP1MeterKit stores an absolute water meter total so the reading survives reboots and firmware updates.

@@ -5,10 +5,10 @@
 wifi:
   fast_connect: true
 
-  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  # Keep setup credentials stable across hardware versions and custom node names.
   ap:
-    ssid: ${device_name}
-    password: ${device_name}
+    ssid: "waterp1meterkit"
+    password: "waterp1meterkit"
 
 captive_portal:
 
