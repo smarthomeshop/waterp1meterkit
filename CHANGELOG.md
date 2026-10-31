@@ -6,7 +6,13 @@ This changelog starts on 2026-04-14. Earlier firmware versions existed before th
 
 ## [Unreleased]
 
+- Add customer-facing firmware notes here before merging a PR.
+
+## [WaterP1MeterKit V4 1.16] - 2026-10-31
+
+
 - Fix V4 Ethernet and Ethernet Cloud starting their firmware selector on WiFi. After boot, updates now follow the variant actually running, including when an older build saved an incorrect selector choice. Switching variants remains available after startup.
+
 
 
 ## [WaterP1MeterKit V1 1.17] - 2026-10-31
