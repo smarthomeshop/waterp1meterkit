@@ -86,6 +86,8 @@ logger:
 
 # Enable Home Assistant API
 api:
+  # Provision a per-device key at runtime and retain it across OTA updates.
+  encryption:
 
 # Enable Over the Air updates
 ota:
@@ -233,12 +235,12 @@ uart:
     number: GPIO16
     inverted: true
   baud_rate: 115200
-  rx_buffer_size: 1700
+  rx_buffer_size: 4096
 
 dsmr:
   uart_id: uart_dsmr
   id: dsmr_instance
-  max_telegram_length: 1700
+  max_telegram_length: 4096
   request_pin: GPIO12
   gas_mbus_id: ${gas_mbus_id}
   water_mbus_id: ${water_mbus_id}

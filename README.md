@@ -136,6 +136,8 @@ Quick start guide: https://smarthomeshop.io/quick-start-waterp1meterkit
 
 ## Optional DSMR Reader Forwarding
 
+All WaterP1 hardware versions use a 4096-byte UART receive buffer and a matching DSMR telegram buffer. This accommodates larger Belgian Fluvius telegrams that exceed the previous 1700-byte limit. These are RAM buffers; increasing them does not add flash writes or change water-meter checkpoints.
+
 Advanced users can forward the raw P1 telegram to a local DSMR Reader instance by adopting the device in ESPHome and adding the optional package in `packages/dsmr-reader.yaml`.
 
 ```yaml
@@ -273,3 +275,13 @@ Generated sources and compiler caches live in the local temporary directory
 (to avoid Docker file-lock errors in Documents/iCloud folders). The first run
 needs internet to download the container, toolchains and remote packages.
 Subsequent builds reuse the caches.
+
+## Home Assistant API encryption
+
+The firmware supports a unique API encryption key provisioned at runtime. No shared key is compiled into manufacturer firmware. Until a key is provisioned, unencrypted clients can connect; compatible Home Assistant versions can automatically provision a key and then use encrypted connections. Other native API clients must use the same key once encryption is active.
+
+Runtime-provisioned keys survive reboots and normal manufacturer OTA updates that preserve preferences, provided the target firmware also supports runtime API encryption. Factory resets, erased preferences, or firmware without encryption support do not provide this guarantee.
+
+A key previously compiled into a custom YAML configuration is not automatically copied into runtime storage. Moving from a YAML key to manufacturer firmware requires a one-time provisioning/reconfiguration step; entering a key only in a Home Assistant connection form does not write it to the device. Keep using ESPHome Device Builder updates if that migration has not been completed.
+
+This setting controls the local native ESPHome API. SmartHomeShop Cloud uses its separate HTTP token authentication. See the [ESPHome API documentation](https://esphome.io/components/api/#configuration-variables).
