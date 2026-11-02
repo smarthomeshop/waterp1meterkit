@@ -6,8 +6,35 @@ This changelog starts on 2026-04-14. Earlier firmware versions existed before th
 
 ## [Unreleased]
 
+- Add customer-facing firmware notes here before merging a PR.
+
+## [WaterP1MeterKit V1 1.18] - 2026-11-02
+
+
 - Increase UART receive and DSMR telegram buffers to 4096 bytes so larger Belgian Fluvius P1 telegrams can be received.
 - Support per-device native API encryption keys provisioned at runtime and retained across normal OTA updates. Existing YAML keys require a one-time migration; other native API clients need the provisioned key once encryption is active.
+
+
+## [WaterP1MeterKit V2 1.19] - 2026-11-02
+
+
+- Increase UART receive and DSMR telegram buffers to 4096 bytes so larger Belgian Fluvius P1 telegrams can be received.
+- Support per-device native API encryption keys provisioned at runtime and retained across normal OTA updates. Existing YAML keys require a one-time migration; other native API clients need the provisioned key once encryption is active.
+
+
+## [WaterP1MeterKit V3 1.18] - 2026-11-02
+
+
+- Increase UART receive and DSMR telegram buffers to 4096 bytes so larger Belgian Fluvius P1 telegrams can be received.
+- Support per-device native API encryption keys provisioned at runtime and retained across normal OTA updates. Existing YAML keys require a one-time migration; other native API clients need the provisioned key once encryption is active.
+
+
+## [WaterP1MeterKit V4 1.17] - 2026-11-02
+
+
+- Increase UART receive and DSMR telegram buffers to 4096 bytes so larger Belgian Fluvius P1 telegrams can be received.
+- Support per-device native API encryption keys provisioned at runtime and retained across normal OTA updates. Existing YAML keys require a one-time migration; other native API clients need the provisioned key once encryption is active.
+
 
 ## [WaterP1MeterKit V4 1.16] - 2026-10-31
 
