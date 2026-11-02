@@ -6,7 +6,8 @@ This changelog starts on 2026-04-14. Earlier firmware versions existed before th
 
 ## [Unreleased]
 
-- Add customer-facing firmware notes here before merging a PR.
+- All hardware versions: ignore damaged or empty DSMR Identification updates to prevent invalid text from interrupting the Home Assistant API connection. Preserve the last valid identification and existing entity.
+
 
 ## [WaterP1MeterKit V1 1.18] - 2026-11-02
 

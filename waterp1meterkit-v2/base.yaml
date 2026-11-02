@@ -510,6 +510,17 @@ text_sensor:
     identification:
       id: dsmr_identification
       name: "Identification"
+      filters:
+        - lambda: |-
+            if (x.empty()) {
+              return {};
+            }
+            for (unsigned char c : x) {
+              if (c < 0x20 || c > 0x7E) {
+                return {};
+              }
+            }
+            return x;
     p1_version:
       id: dsmr_p1_version
       name: "Version"
