@@ -285,8 +285,9 @@ jobs:
         run: |
           set -euo pipefail
 
-          # For scheduled builds, just use current versions (no increment)
-          IS_SCHEDULED="${{ github.event_name == 'schedule' }}"
+          # Rebuilds publish the versions already recorded in the repository.
+          # Manual recovery must not offer an unrecorded, incremented version.
+          IS_REBUILD="${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}"
 
           update_version() {
             local VERSION_FILE=$1
@@ -300,10 +301,10 @@ jobs:
             CURRENT_VERSION=$(grep "project_version:" "$VERSION_FILE" | head -1 | sed 's/.*: *"\([^"]*\)".*/\1/')
             echo "Current version for $VERSION_FILE: $CURRENT_VERSION"
 
-            # For scheduled builds, keep current version (just rebuild with latest ESPHome)
-            if [[ "$IS_SCHEDULED" == "true" ]]; then
+            # Keep the recorded version when rebuilding with latest ESPHome.
+            if [[ "$IS_REBUILD" == "true" ]]; then
               echo "${OUTPUT_NAME}=${CURRENT_VERSION}" >> $GITHUB_OUTPUT
-              echo "Scheduled build - keeping version: $CURRENT_VERSION"
+              echo "Rebuild - keeping version: $CURRENT_VERSION"
               return
             fi
 
@@ -783,7 +784,7 @@ jobs:
     # or cancelled publish still blocks the release.
     if: >-
       always() &&
-      github.event_name == 'push' &&
+      (github.event_name == 'push' || github.event_name == 'workflow_dispatch') &&
       github.ref == 'refs/heads/main' &&
       needs.detect-changes.result == 'success' &&
       !contains(needs.*.result, 'failure') &&
